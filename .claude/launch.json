@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "tts-demo", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "4317"], "port": 4317 },
+    { "name": "screech-stations", "runtimeExecutable": "node", "runtimeArgs": ["agents/server.js"], "port": 4400 }
+  ]
+}

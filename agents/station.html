@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Text-to-Screech Stations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Creepster&family=Figtree:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Kiosk layout: a station picker, then one full-screen station with a talking orb and a big live transcript. Single dark look (it runs behind animatronics). */
+  :root {
+    --bg: #0e0b12; --surface: #1a1520; --line: #2c2433; --fg: #f2ecf5; --muted: #a294ad;
+    --accent: #ff8a2a; --redact: #ff4d6d;
+    --display: "Creepster", Impact, fantasy;
+    --body: "Figtree", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    color-scheme: dark;
+  }
+  [data-station="witch"]  { --accent: #a77bff; }
+  [data-station="reaper"] { --accent: #5fe0c6; }
+  [data-station="jack"]   { --accent: #ff8a2a; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 var(--body); }
+  button { font: inherit; }
+  [hidden] { display: none !important; }
+  .eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+  /* picker */
+  #picker { max-width: 980px; margin: 0 auto; padding-block: 48px; padding-inline: 16px; display: grid; gap: 28px; }
+  #picker h1 { font: 400 clamp(40px, 7vw, 68px)/1 var(--display); color: var(--accent); margin: 0; letter-spacing: .02em; }
+  .stations { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .pick { text-align: left; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 16px; padding: 20px; cursor: pointer; display: grid; gap: 8px; }
+  .pick:hover, .pick:focus-visible { border-color: var(--accent); outline: none; }
+  .pick h2 { margin: 0; font: 400 30px/1.1 var(--display); color: var(--accent); letter-spacing: .02em; }
+  .pick p { margin: 0; color: var(--muted); font-size: 14px; }
+  .pick .warn { color: var(--redact); font: 12px var(--mono); }
+
+  /* station */
+  #station { height: 100%; display: grid; grid-template-rows: auto 1fr auto; }
+  #station > header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  #station h1 { margin: 0; font: 400 clamp(30px, 4vw, 44px)/1 var(--display); color: var(--accent); letter-spacing: .02em; }
+  .back { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  .stage { display: grid; grid-template-columns: minmax(220px, 34%) 1fr; min-height: 0; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } }
+  .orb-wrap { display: grid; place-items: center; align-content: center; gap: 18px; padding: 24px; border-right: 1px solid var(--line); }
+  .orb { width: min(240px, 50vw); aspect-ratio: 1; max-width: 100%; border-radius: 50%;
+         background: radial-gradient(circle at 40% 35%, color-mix(in oklab, var(--accent) 85%, white), var(--accent) 45%, color-mix(in oklab, var(--accent) 30%, var(--bg)) 75%);
+         transform: scale(calc(.82 + var(--lvl, 0) * .35)); opacity: calc(.45 + var(--lvl, 0) * .55);
+         box-shadow: 0 0 calc(30px + var(--lvl, 0) * 90px) color-mix(in oklab, var(--accent) 60%, transparent); transition: transform .08s linear, opacity .2s; }
+  .status { font: 500 14px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+  .log { overflow-y: auto; padding: 24px clamp(16px, 4vw, 40px); display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .msg { max-width: 46ch; font-size: clamp(18px, 2.2vw, 26px); line-height: 1.35; }
+  .msg .who { display: block; font: 500 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .msg.agent .who { color: var(--accent); }
+  .msg.user { align-self: flex-end; text-align: right; }
+  .msg.pending { opacity: .6; }
+  .redacted { font: 600 .8em var(--mono); color: var(--bg); background: var(--redact); border-radius: 4px; padding: 0 .35em; letter-spacing: .05em; }
+  .shield { display: none; align-items: center; gap: 8px; font: 500 12px var(--mono); color: var(--redact); text-transform: uppercase; letter-spacing: .1em; }
+  [data-redact="true"] .shield { display: flex; }
+  .empty { margin: auto; color: var(--muted); text-align: center; max-width: 36ch; }
+  footer.controls { display: flex; gap: 12px; justify-content: center; align-items: center; padding: 16px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .go { background: var(--accent); color: var(--bg); border: 0; border-radius: 999px; padding: 14px 34px; font-weight: 700; font-size: 18px; cursor: pointer; min-width: 220px; }
+  .go.live { background: var(--surface); color: var(--fg); border: 1px solid var(--accent); }
+  .go:focus-visible, .back:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  .hint { font: 12px var(--mono); color: var(--muted); }
+  .err { color: var(--redact); font: 13px var(--mono); }
+  @media (prefers-reduced-motion: reduce) { .orb { transition: none; } }
+</style>
+</head>
+<body>
+
+<main id="picker">
+  <div style="display:grid;gap:10px">
+    <span class="eyebrow">AssemblyAI · Voice Agent API · Oct 29</span>
+    <h1>Text-to-Screech</h1>
+    <p style="margin:0;color:var(--muted);max-width:60ch">Pick the station this laptop runs. Bookmark the station link so it opens straight to it.</p>
+  </div>
+  <div class="stations" id="stations"></div>
+</main>
+
+<section id="station" hidden>
+  <header>
+    <div style="display:grid;gap:6px;min-width:0">
+      <span class="eyebrow" id="st-pillar"></span>
+      <h1 id="st-name"></h1>
+    </div>
+    <div style="display:flex;gap:14px;align-items:center">
+      <span class="shield">● Live redaction on</span>
+      <button class="back" id="back">Stations</button>
+    </div>
+  </header>
+  <div class="stage">
+    <div class="orb-wrap">
+      <div class="orb" id="orb"></div>
+      <div class="status" id="status">Ready</div>
+    </div>
+    <div class="log" id="log"><p class="empty" id="empty">Press start, then just talk.</p></div>
+  </div>
+  <footer class="controls">
+    <button class="go" id="go">Start conversation</button>
+    <span class="hint">Space to start or end · Esc to end</span>
+    <span class="err" id="err"></span>
+  </footer>
+</section>
+
+<script>
+const SR = 24000;
+const $ = (id) => document.getElementById(id);
+let STATIONS = [], station = null;
+
+// ---------- redaction (Finance Reaper screen) ----------
+// Any run of 2+ digits (with spaces/dashes inside) or 3+ spoken number words becomes a REDACTED chip.
+const NUM_WORDS = "zero|oh|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|double|triple";
+const DIGITS = /\d[\d\s\-–.,]*\d|\d/g;
+const WORDS = new RegExp(`\\b(?:(?:${NUM_WORDS})[\\s,\\-]+){2,}(?:${NUM_WORDS})\\b`, "gi");
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function render(text) {
+  const safe = esc(text);
+  if (!station?.redact) return safe;
+  return safe.replace(WORDS, '<span class="redacted">REDACTED</span>').replace(DIGITS, (m) => {
+    const n = m.replace(/\D/g, "").length;
+    return `<span class="redacted">${"•".repeat(Math.min(n, 16)) || "•"}</span>`;
+  });
+}
+
+// ---------- transcript log ----------
+let pendingUser = null, pendingAgent = null;
+function line(role, text, el) {
+  $("empty")?.remove();
+  if (!el) {
+    el = document.createElement("div");
+    el.className = `msg ${role}`;
+    $("log").append(el);
+  }
+  el.innerHTML = `<span class="who">${role === "agent" ? esc(station.name) : "Guest"}</span>${render(text)}`;
+  $("log").scrollTop = $("log").scrollHeight;
+  return el;
+}
+
+// ---------- audio out ----------
+let ctx, playhead = 0, sources = [], analyser, levelRaf;
+function playChunk(b64) {
+  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  const view = new DataView(bytes.buffer);
+  const f = new Float32Array(bytes.length >> 1);
+  for (let i = 0; i < f.length; i++) f[i] = view.getInt16(i * 2, true) / 32768;
+  const buf = ctx.createBuffer(1, f.length, SR);
+  buf.getChannelData(0).set(f);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.connect(analyser);
+  playhead = Math.max(playhead, ctx.currentTime + 0.02);
+  src.start(playhead);
+  playhead += buf.duration;
+  sources.push(src);
+  src.onended = () => { sources = sources.filter((s) => s !== src); };
+}
+function stopPlayback() { sources.forEach((s) => { try { s.stop(); } catch {} }); sources = []; playhead = 0; }
+function meter() {
+  const data = new Uint8Array(analyser.fftSize);
+  const tick = () => {
+    analyser.getByteTimeDomainData(data);
+    let peak = 0;
+    for (const v of data) peak = Math.max(peak, Math.abs(v - 128));
+    $("orb").style.setProperty("--lvl", Math.min(1, peak / 60).toFixed(3));
+    levelRaf = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+// ---------- mic in: AudioWorklet -> PCM16 @ 24 kHz ----------
+const WORKLET = `
+class Pcm extends AudioWorkletProcessor {
+  constructor() { super(); this.buf = new Int16Array(1200); this.n = 0; }
+  process(inputs) {
+    const ch = inputs[0][0];
+    if (ch) for (let i = 0; i < ch.length; i++) {
+      const s = Math.max(-1, Math.min(1, ch[i]));
+      this.buf[this.n++] = s < 0 ? s * 0x8000 : s * 0x7fff;
+      if (this.n === this.buf.length) { this.port.postMessage(this.buf.buffer.slice(0)); this.n = 0; }
+    }
+    return true;
+  }
+}
+registerProcessor("pcm", Pcm);`;
+const b64 = (buf) => { let s = ""; const b = new Uint8Array(buf); for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return btoa(s); };
+
+// ---------- session ----------
+let ws, stream, ready = false, live = false;
+function setStatus(s) { $("status").textContent = s; }
+function setLive(on) {
+  live = on;
+  $("go").textContent = on ? "End conversation" : "Start conversation";
+  $("go").classList.toggle("live", on);
+}
+
+async function start() {
+  $("err").textContent = "";
+  setLive(true);
+  setStatus("Connecting…");
+  try {
+    ctx = new AudioContext({ sampleRate: SR });
+    await ctx.resume();
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    analyser.connect(ctx.destination);
+    meter();
+    await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: "text/javascript" })));
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    const mic = new AudioWorkletNode(ctx, "pcm");
+    ctx.createMediaStreamSource(stream).connect(mic);
+    mic.port.onmessage = (e) => { if (ready && ws?.readyState === 1) ws.send(JSON.stringify({ type: "input.audio", audio: b64(e.data) })); };
+
+    const tok = await fetch("/api/token").then((r) => r.json());
+    if (!tok.token) throw new Error(tok.error || "No token from server");
+    const url = new URL("wss://agents.assemblyai.com/v1/ws");
+    url.searchParams.set("token", tok.token);
+    ws = new WebSocket(url);
+    ws.onopen = () => ws.send(JSON.stringify({ type: "session.update", session: { agent_id: station.agent_id } }));
+    ws.onmessage = (ev) => onEvent(JSON.parse(ev.data));
+    ws.onclose = () => cleanup();
+    ws.onerror = () => { $("err").textContent = "Connection dropped. Press start to try again."; };
+  } catch (e) {
+    $("err").textContent = e.name === "NotAllowedError" ? "Microphone blocked. Allow mic access for this page." : String(e.message || e);
+    cleanup();
+  }
+}
+
+function onEvent(m) {
+  switch (m.type) {
+    case "session.ready": ready = true; setStatus("Listening"); break;
+    case "input.speech.started": setStatus("Listening"); break;
+    case "transcript.user.delta": pendingUser = line("user", m.text ?? "", pendingUser); pendingUser.classList.add("pending"); break;
+    case "transcript.user": pendingUser = line("user", m.text ?? "", pendingUser); pendingUser.classList.remove("pending"); pendingUser = null; break;
+    case "reply.started": setStatus("Speaking"); pendingAgent = null; break;
+    case "reply.audio": playChunk(m.data); break;
+    case "transcript.agent.delta": {
+      const piece = m.delta ?? m.text ?? m.word ?? "";
+      if (!piece) break;
+      const prev = pendingAgent?.dataset.text ?? "";
+      const next = prev && !/^[\s.,!?']/.test(piece) ? `${prev} ${piece}` : prev + piece;
+      pendingAgent = line("agent", next, pendingAgent);
+      pendingAgent.dataset.text = next;
+      break;
+    }
+    case "transcript.agent": pendingAgent = line("agent", (m.text ?? "") + (m.interrupted ? " —" : ""), pendingAgent); pendingAgent = null; break;
+    case "reply.done": if (m.status === "interrupted") stopPlayback(); setStatus("Listening"); break;
+    case "session.error": $("err").textContent = `${m.code ?? "error"}: ${m.message ?? ""}`; break;
+    case "session.ended": cleanup(); break;
+  }
+}
+
+function end() {
+  if (ws?.readyState === 1) { ws.send(JSON.stringify({ type: "session.end" })); setStatus("Ending…"); setTimeout(cleanup, 1500); }
+  else cleanup();
+}
+function cleanup() {
+  ready = false;
+  try { ws?.close(); } catch {}
+  ws = null;
+  stream?.getTracks().forEach((t) => t.stop());
+  stream = null;
+  stopPlayback();
+  cancelAnimationFrame(levelRaf);
+  $("orb").style.setProperty("--lvl", 0);
+  ctx?.close().catch(() => {});
+  ctx = null;
+  pendingUser = pendingAgent = null;
+  setLive(false);
+  setStatus("Ready");
+}
+
+// ---------- routing ----------
+function show(slug) {
+  station = STATIONS.find((s) => s.slug === slug) ?? null;
+  if (live) cleanup();
+  $("picker").hidden = !!station;
+  $("station").hidden = !station;
+  document.body.dataset.station = station?.slug ?? "";
+  if (!station) return;
+  station.redact = station.slug === "reaper";
+  document.body.dataset.redact = station.redact;
+  document.title = `${station.name} · Text-to-Screech`;
+  $("st-name").textContent = station.name;
+  $("st-pillar").textContent = station.pillar;
+  $("log").innerHTML = `<p class="empty" id="empty">Press start, then just talk.${station.redact ? " Any number you say is redacted on this screen." : ""}</p>`;
+  $("go").disabled = !station.agent_id;
+  if (!station.agent_id) $("err").textContent = "This agent isn't created yet. Run: node create-agents.js";
+}
+
+$("go").onclick = () => (live ? end() : start());
+$("back").onclick = () => { location.hash = ""; };
+addEventListener("hashchange", () => show(location.hash.slice(1)));
+addEventListener("keydown", (e) => {
+  if (!station || e.target.closest("button")) return;
+  if (e.code === "Space") { e.preventDefault(); live ? end() : start(); }
+  if (e.code === "Escape" && live) end();
+});
+addEventListener("pagehide", () => { if (ws?.readyState === 1) ws.send(JSON.stringify({ type: "session.end" })); });
+
+fetch("/api/stations").then((r) => r.json()).then((list) => {
+  STATIONS = list;
+  $("stations").innerHTML = list.map((s) => `
+    <button class="pick" data-station="${s.slug}" onclick="location.hash='${s.slug}'">
+      <span class="eyebrow">${esc(s.station)}</span>
+      <h2>${esc(s.name)}</h2>
+      <p>${esc(s.pillar)}</p>
+      <p>“${esc(s.greeting)}”</p>
+      ${s.agent_id ? "" : '<span class="warn">Not created yet: run node create-agents.js</span>'}
+    </button>`).join("");
+  show(location.hash.slice(1));
+});
+</script>
+</body>
+</html>

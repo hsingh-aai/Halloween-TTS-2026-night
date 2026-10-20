@@ -1,0 +1,14 @@
+{
+  "witch": {
+    "id": "agent_0367ff45a4e54f519bbffba26d82e789",
+    "name": "Therapista"
+  },
+  "reaper": {
+    "id": "agent_b92691abe8fb4950b47534b314f3f3d1",
+    "name": "The Finance Reaper"
+  },
+  "jack": {
+    "id": "agent_921917929cb944e19960ffdfbd53f217",
+    "name": "Jack the Roaster"
+  }
+}
