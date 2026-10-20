@@ -3,7 +3,7 @@
 //
 //   node verify/verify.js                 # all characters
 //   node verify/verify.js reaper jack     # some
-//   node verify/verify.js device --url wss://.../agent/websocket   # Jack on the board's agent
+//   node verify/verify.js device --url https://<studio>/agent   # Jack as published (ticketed via client-config)
 //
 // Device Jack defaults to the local agent (ws://localhost:3000/websocket, `aai dev`).
 // Exit code 1 if any check fails. Replies are model output, so a check can flake: rerun a

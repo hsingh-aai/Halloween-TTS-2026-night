@@ -83,9 +83,21 @@ export async function station(agentId, lines) {
   return transcript;
 }
 
+// A studio-published agent (an https:// agent URL) admits a session only with a ticket:
+// GET <agent>/client-config returns the sandbox's sessionUrl and a short-lived sessionToken.
+// A local `aai dev` (ws://) needs none.
+async function sessionSocketUrl(baseUrl, client) {
+  if (!/^https?:/.test(baseUrl)) return `${baseUrl}?resume=1&client=${client}`;
+  const res = await fetch(`${baseUrl.replace(/\/$/, "")}/client-config`);
+  if (!res.ok) throw new Error(`client-config ${res.status}`);
+  const { sessionUrl, sessionToken } = await res.json();
+  if (!sessionUrl || !sessionToken) throw new Error("client-config returned no sessionUrl/sessionToken");
+  return `${sessionUrl}?resume=1&client=${client}&token=${encodeURIComponent(sessionToken)}`;
+}
+
 export async function device(baseUrl, lines, client = "verify") {
   const audio = await Promise.all(lines.map((t) => speak(t, GUEST_VOICE)));
-  const ws = new WebSocket(`${baseUrl}?resume=1&client=${client}`); // resume=1: no spoken greeting, like the board
+  const ws = new WebSocket(await sessionSocketUrl(baseUrl, client)); // resume=1: no spoken greeting, like the board
   ws.binaryType = "arraybuffer";
   const c = collector();
   let micRate = 16000;
@@ -101,8 +113,17 @@ export async function device(baseUrl, lines, client = "verify") {
       if ((m.type === "agentTranscript.committed" || m.type === "agent-transcript.committed") && m.text) c.push(m.text);
     });
   });
-  await new Promise((r, j) => { ws.addEventListener("open", r); ws.addEventListener("error", j); });
-  await configured;
+  const refused = new Promise((_, j) => {
+    ws.addEventListener("message", (ev) => {
+      if (typeof ev.data !== "string") return;
+      const m = JSON.parse(ev.data);
+      if (m.type === "error.reported" && m.fatal) j(new Error(`agent refused the session: ${m.message}`));
+    });
+    ws.addEventListener("close", (e) => j(new Error(`socket closed before the session was configured (${e.code})`)));
+  });
+  refused.catch(() => {});
+  await new Promise((r, j) => { ws.addEventListener("open", r); ws.addEventListener("error", () => j(new Error("could not open the session socket"))); });
+  await Promise.race([configured, refused]);
   const transcript = [];
   for (let i = 0; i < lines.length; i++) {
     transcript.push({ role: "guest", text: lines[i] });
