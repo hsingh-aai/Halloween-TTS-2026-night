@@ -3,3 +3,6 @@ node_modules/
 out/cache/
 out/rehearsal-*.wav
 .DS_Store
+device/agent/data/
+.aai/
+.workflow-data/
