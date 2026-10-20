@@ -1,12 +1,13 @@
 diff --git a/firmware/.gitignore b/firmware/.gitignore
-index 5895720..5a6bd4e 100644
+index 5895720..efc422e 100644
 --- a/firmware/.gitignore
 +++ b/firmware/.gitignore
-@@ -8,3 +8,4 @@ build-fuzz/
+@@ -8,3 +8,5 @@ build-fuzz/
  build-cov/
  test/device/.last-pass
  Kconfig.new
 +sdkconfig.event.local
++sdkconfig.test.local
 diff --git a/firmware/components/aai_device/Kconfig b/firmware/components/aai_device/Kconfig
 index c9c1111..9e4dfc1 100644
 --- a/firmware/components/aai_device/Kconfig
@@ -27,10 +28,18 @@ index c9c1111..9e4dfc1 100644
          int "Follow-up window (ms)"
          default 3000
 diff --git a/firmware/components/aai_device/agent.c b/firmware/components/aai_device/agent.c
-index ab5852d..9dee5f2 100644
+index ab5852d..98cae77 100644
 --- a/firmware/components/aai_device/agent.c
 +++ b/firmware/components/aai_device/agent.c
-@@ -37,7 +37,7 @@ static const char *TAG = "agent";
+@@ -13,6 +13,7 @@
+ #include "discovery.h"
+ #include "esp_attr.h"
+ #include "esp_crt_bundle.h"
++#include "esp_http_client.h"
+ #include "esp_heap_caps.h"
+ #include "esp_log.h"
+ #include "esp_timer.h"
+@@ -37,7 +38,7 @@ static const char *TAG = "agent";
  // "drop the frame" knob: 50 ms (the old mic value) turned a brief Wi-Fi stall into a
  // dead session. Backpressure is absorbed upstream instead — agent_push_mic() never
  // blocks, so a slow socket drops mic audio at the stream buffer.
@@ -39,6 +48,115 @@ index ab5852d..9dee5f2 100644
  #define TEXT_MAX           8192
  #define RESUME_WINDOW_US   (110LL * 1000 * 1000)  // server keeps sessions 120 s
  #define PROGRESS_EVERY_US  (500 * 1000)
+@@ -525,17 +526,77 @@ void agent_init(void)
+     esp_log_level_set("websocket_client", ESP_LOG_ERROR);
+ }
+ 
++// ---- studio-published agents: a session ticket per connect ----
++// A published aai agent admits a session only with a short-lived ticket. Configured as its
++// https:// URL, the device asks GET <url>/client-config (public) for the sandbox's sessionUrl
++// and a sessionToken, then connects there with ?token=. A ws:// (local `aai dev`) needs none.
++#define TICKET_URL_MAX   256
++#define TICKET_TOKEN_MAX 768
++static char s_ticket_url[TICKET_URL_MAX];
++static char s_ticket_token[TICKET_TOKEN_MAX];
++
++static bool agent_is_published(const char *base) { return strncmp(base, "https://", 8) == 0; }
++
++static bool fetch_ticket(const char *base)
++{
++    char url[DISCOVERY_URL_MAX + 16];
++    size_t n = strlen(base);
++    snprintf(url, sizeof(url), "%.*s/client-config", (int)(n && base[n - 1] == '/' ? n - 1 : n), base);
++    esp_http_client_config_t cfg = {
++        .url = url,
++        .timeout_ms = 8000,
++        .crt_bundle_attach = esp_crt_bundle_attach,
++    };
++    esp_http_client_handle_t h = esp_http_client_init(&cfg);
++    if (!h) return false;
++    bool ok = false;
++    char *body = heap_caps_calloc(1, 4096, MALLOC_CAP_SPIRAM);
++    if (body && esp_http_client_open(h, 0) == ESP_OK) {
++        esp_http_client_fetch_headers(h);
++        int status = esp_http_client_get_status_code(h);
++        int got = 0, r;
++        while (got < 4095 && (r = esp_http_client_read(h, body + got, 4095 - got)) > 0) got += r;
++        body[got] = 0;
++        cJSON *j = status == 200 ? cJSON_Parse(body) : NULL;
++        const char *su = j ? cJSON_GetStringValue(cJSON_GetObjectItem(j, "sessionUrl")) : NULL;
++        const char *tk = j ? cJSON_GetStringValue(cJSON_GetObjectItem(j, "sessionToken")) : NULL;
++        if (su && tk && strlen(su) < sizeof(s_ticket_url) && strlen(tk) < sizeof(s_ticket_token)) {
++            strlcpy(s_ticket_url, su, sizeof(s_ticket_url));
++            strlcpy(s_ticket_token, tk, sizeof(s_ticket_token));
++            ok = true;
++        } else {
++            ESP_LOGE(TAG, "client-config: HTTP %d, no usable sessionUrl/sessionToken", status);
++        }
++        cJSON_Delete(j);
++    } else {
++        ESP_LOGE(TAG, "client-config: could not reach %s", url);
++    }
++    free(body);
++    esp_http_client_cleanup(h);
++    return ok;
++}
++
+ void agent_start(void)
+ {
+-    char uri[512];
+-    char base[DISCOVERY_URL_MAX];
++    static char uri[1280];  // a published agent's ticket rides in the query; static: callers have small stacks
++    static char base[DISCOVERY_URL_MAX > TICKET_URL_MAX ? DISCOVERY_URL_MAX : TICKET_URL_MAX];
+     if (!discovery_agent_url(base, sizeof(base))) {
+         ESP_LOGE(TAG, "no agent to connect to: none found on the LAN (is `make agent` running?)");
+         discovery_refresh();
+         aai_events_post(AAI_EVENT_SESSION_CLOSED, NULL, 0);
+         return;
+     }
+-    bool resume = s_session_id[0] && s_session_has_turns && now_us() - s_session_end_us < RESUME_WINDOW_US;
++    bool published = agent_is_published(base);
++    if (published) {
++        int64_t tt = now_us();
++        if (!fetch_ticket(base)) {
++            aai_events_post(AAI_EVENT_SESSION_CLOSED, NULL, 0);
++            return;
++        }
++        ESP_LOGI(TAG, "session ticket in %d ms", (int)((now_us() - tt) / 1000));
++        strlcpy(base, s_ticket_url, sizeof(base));
++    }
++    bool resume = !published && s_session_id[0] && s_session_has_turns && now_us() - s_session_end_us < RESUME_WINDOW_US;
+     if (!resume) {
+         s_session_has_turns = false;
+     }
+@@ -547,6 +608,10 @@ void agent_start(void)
+         ESP_LOGW(TAG, "device address too long for the session URL; connecting without it");
+         proto_session_url(base, sid, client, NULL, uri, sizeof(uri));
+     }
++    if (published) {
++        size_t used = strlen(uri);
++        snprintf(uri + used, sizeof(uri) - used, "&token=%s", s_ticket_token);  // base64url: URL-safe as is
++    }
+     // Not `uri`: it carries the device's street address.
+     ESP_LOGI(TAG, "connecting to %s%s (internal heap free %u, largest block %u)", base, resume ? " (resume)" : "",
+              (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+diff --git a/firmware/components/aai_device/inbox.c b/firmware/components/aai_device/inbox.c
+index 686a91d..fea0dc0 100644
+--- a/firmware/components/aai_device/inbox.c
++++ b/firmware/components/aai_device/inbox.c
+@@ -272,6 +272,12 @@ static void ws_handler(void *arg, esp_event_base_t base, int32_t id, void *event
+ void inbox_start(const char *agent_url)
+ {
+     static char uri[256];
++    // A studio-published agent (https://) gates every socket behind a session ticket, and
++    // the inbox (pushed reminders) has none: skip it rather than retry a refusal forever.
++    if (strncmp(agent_url, "https://", 8) == 0) {
++        ESP_LOGI(TAG, "no inbox for a published agent");
++        return;
++    }
+     char next[sizeof(uri)];
+     if (!proto_inbox_url(agent_url, inbox_client_id(), next, sizeof(next))) {
+         ESP_LOGE(TAG, "no inbox: cannot build its URL from %s", agent_url);
 diff --git a/firmware/components/aai_device/protocol.c b/firmware/components/aai_device/protocol.c
 index 8add13b..d385b85 100644
 --- a/firmware/components/aai_device/protocol.c
@@ -225,3 +343,77 @@ index 3a6f122..7e26c58 100644
  
      xTaskCreatePinnedToCoreWithCaps(feed_task, "afe_feed", 4096, NULL, 10, NULL, 0, MALLOC_CAP_SPIRAM);
      xTaskCreatePinnedToCoreWithCaps(fetch_task, "afe_fetch", 4096, NULL, 10, NULL, 1, MALLOC_CAP_SPIRAM);
+diff --git a/firmware/components/aai_device/wifi.c b/firmware/components/aai_device/wifi.c
+index eb2ff42..e200296 100644
+--- a/firmware/components/aai_device/wifi.c
++++ b/firmware/components/aai_device/wifi.c
+@@ -13,6 +13,7 @@
+ #include "network_provisioning/manager.h"
+ #include "network_provisioning/scheme_softap.h"
+ #include "nvs_flash.h"
++#include "esp_timer.h"
+ #include "sdkconfig.h"
+ 
+ static const char *TAG = "wifi";
+@@ -58,9 +59,53 @@ static void start_provisioning(void)
+              pop ? pop : "");
+ }
+ 
++static volatile bool s_scanning;
++
++// Diagnostic: when the configured network isn't found, list what the board CAN see, so a
++// hotspot name typo (or a 5 GHz-only hotspot) is visible in the log.
++static void scan_task(void *arg)
++{
++    vTaskDelay(pdMS_TO_TICKS(14000));
++    for (int round = 0; round < 3 && !(xEventGroupGetBits(s_events) & CONNECTED); round++) {
++        s_scanning = true;
++        esp_wifi_disconnect();
++        vTaskDelay(pdMS_TO_TICKS(300));
++        if (esp_wifi_scan_start(NULL, true) == ESP_OK) {
++            uint16_t n = 20;
++            wifi_ap_record_t *aps = calloc(n, sizeof(*aps));
++            if (aps && esp_wifi_scan_get_ap_records(&n, aps) == ESP_OK) {
++                ESP_LOGW(TAG, "visible networks (%u):", n);
++                for (int i = 0; i < n; i++) {
++                    ESP_LOGW(TAG, "  \"%s\" ch %d rssi %d", (const char *)aps[i].ssid, aps[i].primary, aps[i].rssi);
++                }
++            }
++            free(aps);
++        }
++        s_scanning = false;
++        esp_wifi_connect();
++        vTaskDelay(pdMS_TO_TICKS(20000));
++    }
++    vTaskDelete(NULL);
++}
++
+ static void handler(void *arg, esp_event_base_t base, int32_t id, void *data)
+ {
++    if (s_scanning && base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) return;
+     if (base == WIFI_EVENT && (id == WIFI_EVENT_STA_START || id == WIFI_EVENT_STA_DISCONNECTED)) {
++        if (id == WIFI_EVENT_STA_DISCONNECTED) {
++            // Say why, at most every 10 s: 201 = network not found (name, or a phone hotspot
++            // that isn't visible), 15/204/210 = refused (wrong password).
++            static int64_t s_last_log_us;
++            int64_t now = esp_timer_get_time();
++            if (now - s_last_log_us > 10 * 1000000LL) {
++                s_last_log_us = now;
++                wifi_event_sta_disconnected_t *ev = data;
++                ESP_LOGW(TAG, "not connected (reason %d%s)", ev->reason,
++                         ev->reason == WIFI_REASON_NO_AP_FOUND ? ": network not found" :
++                         (ev->reason == WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT || ev->reason == WIFI_REASON_HANDSHAKE_TIMEOUT ||
++                          ev->reason == WIFI_REASON_AUTH_FAIL) ? ": refused, check the password" : "");
++            }
++        }
+         xEventGroupClearBits(s_events, CONNECTED);
+         esp_wifi_connect();
+     } else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP) {
+@@ -132,6 +177,7 @@ void wifi_start(void)
+         }
+     }
+     ESP_ERROR_CHECK(esp_wifi_start());
++    if (CONFIG_AAI_WIFI_SSID[0]) xTaskCreate(scan_task, "wifi_scan", 4096, NULL, 2, NULL);
+     esp_wifi_set_ps(WIFI_PS_NONE);  // power save adds 100+ ms of latency to streamed audio
+ 
+     if (!CONFIG_AAI_WIFI_SSID[0]) {
