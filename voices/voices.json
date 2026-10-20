@@ -1,0 +1,8 @@
+{
+  "therapista": {
+    "voice_id": "01a15b40-31ec-72a5-9a53-5dcc9e3a2f5f",
+    "model": "assemblyai-tts-mul-4brem-2026-10-17",
+    "source": "30 s of a voice actor's witch reel (33.0-62.95 s), cloned Oct 20 2026 with consent attested by Harnoor",
+    "use": "wss://tts.use1.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
+  }
+}

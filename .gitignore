@@ -6,3 +6,5 @@ out/rehearsal-*.wav
 device/agent/data/
 .aai/
 .workflow-data/
+voices/clips/
+out/clone-*.wav
