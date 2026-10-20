@@ -8,3 +8,6 @@ device/agent/data/
 .workflow-data/
 voices/clips/
 out/clone-*.wav
+characters/*/laughs/
+characters/*/cackles.ts
+characters/*/node_modules/

@@ -8,6 +8,19 @@ index 5895720..efc422e 100644
  Kconfig.new
 +sdkconfig.event.local
 +sdkconfig.test.local
+diff --git a/firmware/components/aai_device/CMakeLists.txt b/firmware/components/aai_device/CMakeLists.txt
+index 264aeee..d4cdb74 100644
+--- a/firmware/components/aai_device/CMakeLists.txt
++++ b/firmware/components/aai_device/CMakeLists.txt
+@@ -7,7 +7,7 @@ idf_component_register(
+                   esp_app_format app_update espcoredump espressif__cjson espressif__esp_audio_effects
+                   espressif__mdns espressif__network_provisioning
+     # Blurt's default start cue (rom1a-6-start.wav) as raw 16 kHz mono PCM16LE.
+-    EMBED_FILES "sounds/wake_chime.pcm"
++    EMBED_FILES "sounds/wake_chime.pcm" "sounds/cackle_1.pcm" "sounds/cackle_2.pcm"
+ )
+ 
+ target_compile_options(
 diff --git a/firmware/components/aai_device/Kconfig b/firmware/components/aai_device/Kconfig
 index c9c1111..9e4dfc1 100644
 --- a/firmware/components/aai_device/Kconfig
@@ -28,7 +41,7 @@ index c9c1111..9e4dfc1 100644
          int "Follow-up window (ms)"
          default 3000
 diff --git a/firmware/components/aai_device/agent.c b/firmware/components/aai_device/agent.c
-index ab5852d..5dbc511 100644
+index ab5852d..bb22c0b 100644
 --- a/firmware/components/aai_device/agent.c
 +++ b/firmware/components/aai_device/agent.c
 @@ -13,6 +13,7 @@
@@ -39,7 +52,15 @@ index ab5852d..5dbc511 100644
  #include "esp_heap_caps.h"
  #include "esp_log.h"
  #include "esp_timer.h"
-@@ -37,7 +38,7 @@ static const char *TAG = "agent";
+@@ -30,14 +31,14 @@ static const char *TAG = "agent";
+ 
+ #define MIC_BUF_BYTES  (2 * BOARD_SAMPLE_RATE * 2)  // 2 s pre-roll while connecting
+ #define SPK_BUF_BYTES  (8 * BOARD_SAMPLE_RATE * 2)  // server paces ~1.5 s ahead
+-#define CUE_BUF_BYTES  (BOARD_SAMPLE_RATE * 2)      // 1 s of local cues
++#define CUE_BUF_BYTES  (BOARD_SAMPLE_RATE * 2 * 4)  // 4 s of local cues (a cackle is ~3 s)
+ #define SEND_CHUNK     512                          // samples, 32 ms @ 16 kHz
+ #define WS_BUFFER_SIZE 4096
+ // esp_websocket_client ABORTS the connection when a send times out, so this is not a
  // "drop the frame" knob: 50 ms (the old mic value) turned a brief Wi-Fi stall into a
  // dead session. Backpressure is absorbed upstream instead — agent_push_mic() never
  // blocks, so a slow socket drops mic audio at the stream buffer.
@@ -48,7 +69,67 @@ index ab5852d..5dbc511 100644
  #define TEXT_MAX           8192
  #define RESUME_WINDOW_US   (110LL * 1000 * 1000)  // server keeps sessions 120 s
  #define PROGRESS_EVERY_US  (500 * 1000)
-@@ -525,17 +526,78 @@ void agent_init(void)
+@@ -70,6 +71,12 @@ static atomic_int_fast64_t s_last_reply_us, s_last_cue_us;  // last sample of ea
+ // Keep the amp on: the user's turn is committed and a reply is coming. Warming it up then,
+ // during the agent's thinking time, keeps AMP_WARMUP_MS off the front of every reply.
+ static atomic_bool s_amp_hold;
++// Cackles the agent asked for (the `cackle` custom event): played once the reply that came
++// with them has finished, so the laugh lands as the punchline instead of over the voice.
++static atomic_int s_cackle_pending;
++static atomic_bool s_cackle_text_done;
++static atomic_int_fast64_t s_cackle_since_us;
++static void maybe_cackle(void);
+ static atomic_int_fast64_t s_amp_release_us;  // when the hold last ended; counts as playing
+ static int s_in_rate = BOARD_SAMPLE_RATE, s_tts_rate = 24000;
+ static TaskHandle_t s_player, s_sender, s_closer;
+@@ -246,6 +253,7 @@ static void on_event(const char *json, size_t len)
+         ESP_LOGI(TAG, "%s: flushing playback", msg.type == PROTO_REPLY_CANCELLED ? "reply.cancelled" : "session.reset");
+         amp_hold(false);
+         request_flush();
++        s_cackle_pending = 0;
+         for (int n = s_cancels_pending; n > 0 && !atomic_compare_exchange_weak(&s_cancels_pending, &n, n - 1);) {
+         }
+         break;
+@@ -255,6 +263,7 @@ static void on_event(const char *json, size_t len)
+         ESP_LOGI(TAG, "you: %s", msg.text);
+         break;
+     case PROTO_AGENT_TRANSCRIPT:
++        if (s_cackle_pending) s_cackle_text_done = true;
+         // Released, not dropped: its audio may still be a moment behind the text, and the
+         // amp stays up AMP_IDLE_OFF_US after the release to cover that.
+         amp_hold(false);
+@@ -271,6 +280,13 @@ static void on_event(const char *json, size_t len)
+             aai_events_post(AAI_EVENT_SESSION_CLOSED, NULL, 0);
+         }
+         break;
++    case PROTO_CACKLE:
++        s_cackle_pending++;
++        s_cackle_text_done = false;
++        s_cackle_since_us = now_us();
++        ESP_LOGI(TAG, "cackle queued");
++        wake_player();
++        break;
+     case PROTO_STOP:  // acted on in main.c, via AAI_EVENT_MESSAGE
+         ESP_LOGI(TAG, "stop requested");
+         break;
+@@ -405,6 +421,7 @@ static void player_task(void *arg)
+             amp_up();
+             amp_on = true;
+         }
++        maybe_cackle();
+         size_t got = xStreamBufferReceive(s_cue_sb, buf, sizeof(buf), 0) / 2;
+         bool cue = got > 0;
+         if (!cue) {
+@@ -453,7 +470,7 @@ static void player_task(void *arg)
+             }
+             // Poll only while something above is pending (a deadline, a deferred flush);
+             // otherwise sleep until wake_player().
+-            bool pending = s_flush || burst_start || (amp_on && !s_amp_hold);
++            bool pending = s_flush || burst_start || (amp_on && !s_amp_hold) || s_cackle_pending > 0;
+             ulTaskNotifyTake(pdTRUE, pending ? pdMS_TO_TICKS(20) : portMAX_DELAY);
+         }
+     }
+@@ -525,17 +542,78 @@ void agent_init(void)
      esp_log_level_set("websocket_client", ESP_LOG_ERROR);
  }
  
@@ -130,7 +211,7 @@ index ab5852d..5dbc511 100644
      if (!resume) {
          s_session_has_turns = false;
      }
-@@ -547,6 +609,10 @@ void agent_start(void)
+@@ -547,6 +625,10 @@ void agent_start(void)
          ESP_LOGW(TAG, "device address too long for the session URL; connecting without it");
          proto_session_url(base, sid, client, NULL, uri, sizeof(uri));
      }
@@ -141,6 +222,67 @@ index ab5852d..5dbc511 100644
      // Not `uri`: it carries the device's street address.
      ESP_LOGI(TAG, "connecting to %s%s (internal heap free %u, largest block %u)", base, resume ? " (resume)" : "",
               (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+@@ -622,6 +704,10 @@ void agent_cancel(void)
+ //   level of the old 880 Hz beep (peak 6000) so the wake cue isn't a jump in loudness.
+ extern const uint8_t _binary_wake_chime_pcm_start[], _binary_wake_chime_pcm_end[];
+ #define CHIME_GAIN_Q15 11000  // ~0.34
++// - Cackles: two takes of an evil-witch laugh, played on the agent's `cackle` event.
++extern const uint8_t _binary_cackle_1_pcm_start[], _binary_cackle_1_pcm_end[];
++extern const uint8_t _binary_cackle_2_pcm_start[], _binary_cackle_2_pcm_end[];
++#define CACKLE_GAIN_Q15 26000  // ~0.8: about as loud as the voice
+ 
+ typedef struct {
+     int16_t *pcm;
+@@ -629,6 +715,7 @@ typedef struct {
+ } cue_t;
+ 
+ static cue_t s_chime;
++static cue_t s_cackles[2];
+ 
+ // A gain-scaled copy of one embedded blob.
+ static cue_t cue_load(const uint8_t *start, const uint8_t *end, int gain_q15)
+@@ -646,6 +733,8 @@ static cue_t cue_load(const uint8_t *start, const uint8_t *end, int gain_q15)
+ static void cues_init(void)
+ {
+     s_chime = cue_load(_binary_wake_chime_pcm_start, _binary_wake_chime_pcm_end, CHIME_GAIN_Q15);
++    s_cackles[0] = cue_load(_binary_cackle_1_pcm_start, _binary_cackle_1_pcm_end, CACKLE_GAIN_Q15);
++    s_cackles[1] = cue_load(_binary_cackle_2_pcm_start, _binary_cackle_2_pcm_end, CACKLE_GAIN_Q15);
+ }
+ 
+ static void play_cue(const cue_t *cue)
+@@ -654,6 +743,22 @@ static void play_cue(const cue_t *cue)
+     wake_player();
+ }
+ 
++// Called on the player task: once the reply text that came with the cackle is in and its
++// audio has drained (or 8 s passed), queue the laugh as a local cue.
++static void maybe_cackle(void)
++{
++    static unsigned next;
++    if (s_cackle_pending <= 0) return;
++    int64_t now = now_us();
++    bool reply_done = s_cackle_text_done || now - s_cackle_since_us > 8 * 1000 * 1000;
++    bool quiet = xStreamBufferBytesAvailable(s_spk_sb) == 0 && now - s_last_reply_us > 400 * 1000;
++    if (!reply_done || !quiet || now - s_cackle_since_us < 300 * 1000) return;
++    s_cackle_pending--;
++    s_cackle_text_done = false;
++    ESP_LOGI(TAG, "cackle");
++    play_cue(&s_cackles[next++ % 2]);
++}
++
+ void agent_play_chime(void) { play_cue(&s_chime); }
+ 
+ void agent_play_tone(int freq_hz, int ms)
+@@ -702,7 +807,8 @@ bool agent_talking(void)
+     if (!s_spk_sb) {
+         return false;  // agent_init() not called yet
+     }
+-    return xStreamBufferBytesAvailable(s_spk_sb) > 0 || now_us() - s_last_reply_us < SPEAKER_TAIL_US;
++    return xStreamBufferBytesAvailable(s_spk_sb) > 0 || now_us() - s_last_reply_us < SPEAKER_TAIL_US ||
++           xStreamBufferBytesAvailable(s_cue_sb) > 0 || now_us() - s_last_cue_us < SPEAKER_TAIL_US;
+ }
+ 
+ bool agent_speaker_busy(void)
 diff --git a/firmware/components/aai_device/inbox.c b/firmware/components/aai_device/inbox.c
 index 686a91d..fea0dc0 100644
 --- a/firmware/components/aai_device/inbox.c
@@ -158,11 +300,33 @@ index 686a91d..fea0dc0 100644
      char next[sizeof(uri)];
      if (!proto_inbox_url(agent_url, inbox_client_id(), next, sizeof(next))) {
          ESP_LOGE(TAG, "no inbox: cannot build its URL from %s", agent_url);
+diff --git a/firmware/components/aai_device/include/protocol.h b/firmware/components/aai_device/include/protocol.h
+index 45db38b..1423497 100644
+--- a/firmware/components/aai_device/include/protocol.h
++++ b/firmware/components/aai_device/include/protocol.h
+@@ -23,6 +23,7 @@ typedef enum {
+     // Our own agent's tools (agent/tools/) reach the device through ctx.send(), which
+     // arrives as custom.emitted {event, data}. Unknown custom events are PROTO_OTHER.
+     PROTO_STOP,  // event "stop": silence the speaker and hang up, without a reply
++    PROTO_CACKLE,  // event "cackle": play a witch laugh once the current reply has played
+ } proto_type_t;
+ 
+ typedef struct {
 diff --git a/firmware/components/aai_device/protocol.c b/firmware/components/aai_device/protocol.c
-index 8add13b..d385b85 100644
+index 8add13b..deaf1a5 100644
 --- a/firmware/components/aai_device/protocol.c
 +++ b/firmware/components/aai_device/protocol.c
-@@ -40,6 +40,7 @@ bool proto_parse(const char *json, size_t len, proto_msg_t *out)
+@@ -27,6 +27,9 @@ static proto_type_t parse_custom(const cJSON *msg)
+     if (strcmp(event, "stop") == 0) {
+         return PROTO_STOP;
+     }
++    if (strcmp(event, "cackle") == 0) {
++        return PROTO_CACKLE;
++    }
+     return PROTO_OTHER;
+ }
+ 
+@@ -40,6 +43,7 @@ bool proto_parse(const char *json, size_t len, proto_msg_t *out)
          return false;
      }
  
@@ -170,7 +334,7 @@ index 8add13b..d385b85 100644
      if (strcmp(type, "session.configured") == 0) {
          out->type = PROTO_SESSION_CONFIGURED;
          out->sample_rate = valid_rate(cJSON_GetObjectItem(msg, "sampleRate"), PROTO_DEFAULT_SAMPLE_RATE);
-@@ -49,10 +50,10 @@ bool proto_parse(const char *json, size_t len, proto_msg_t *out)
+@@ -49,10 +53,10 @@ bool proto_parse(const char *json, size_t len, proto_msg_t *out)
          out->type = PROTO_REPLY_CANCELLED;
      } else if (strcmp(type, "session.reset") == 0) {
          out->type = PROTO_SESSION_RESET;
@@ -183,7 +347,7 @@ index 8add13b..d385b85 100644
          out->type = PROTO_AGENT_TRANSCRIPT;
          copy_str(out->text, sizeof(out->text), cJSON_GetObjectItem(msg, "text"));
      } else if (strcmp(type, "tool.called") == 0) {
-@@ -63,7 +64,7 @@ bool proto_parse(const char *json, size_t len, proto_msg_t *out)
+@@ -63,7 +67,7 @@ bool proto_parse(const char *json, size_t len, proto_msg_t *out)
          out->fatal = cJSON_IsTrue(cJSON_GetObjectItem(msg, "fatal"));
          copy_str(out->code, sizeof(out->code), cJSON_GetObjectItem(msg, "code"));
          copy_str(out->text, sizeof(out->text), cJSON_GetObjectItem(msg, "message"));
