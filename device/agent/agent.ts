@@ -14,7 +14,9 @@ export default agent({
   // while Jack talks, so a greeting on every wake would swallow "Hi Jack, introduce
   // yourself". (The firmware's ?resume=1 should suppress it, but SDK 0.14 speaks it anyway.)
   greeting: "",
-  tts: assemblyAITts({ voice: "george" }),
+  // The newer streaming TTS cluster (multilingual checkpoint; it reported
+  // assemblyai-tts-mul-4brem-2026-10-17 on Oct 20). Same protocol and key as production.
+  tts: assemblyAITts({ voice: "george", host: "streaming-tts.use1.assemblyai.com" }),
   // The board's AFE already does echo cancellation and beamforming, and party guests
   // stand back from it, so near-field voice focus would cut them out.
   // A short pause ends a guest's turn (the default 1.6 s drags at a party), while a

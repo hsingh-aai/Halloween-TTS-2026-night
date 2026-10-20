@@ -31,6 +31,8 @@ Our firmware changes are in `firmware/aai-device-jack.patch`:
 - studio-published agents: an `https://` agent URL makes the board fetch a session ticket from `<agent>/client-config` on every wake and connect to the sandbox with it (the inbox is skipped: it can't get a ticket)
 - a 4 s send timeout and bigger TCP window for slower Wi-Fi; TLS buffers in PSRAM
 - Wi-Fi diagnostics: the disconnect reason, and a list of visible networks when a compiled-in network isn't found
+- the phone-setup fallback actually starts when the saved network is gone (upstream it failed with "sta is connecting"), and keeps retrying the saved network beside it
+- the session-ticket fetch waits 12 s and retries once, for a sandbox waking from idle
 - accepting the camelCase event names the published aai SDK sends
 ```
 git clone https://github.com/alexkroman/aai-device && cd aai-device
@@ -43,7 +45,7 @@ CONFIG_AAI_CLIENT_ID="jack-pumpkin"
 CONFIG_AAI_WIFI_SSID="<ssid>"
 CONFIG_AAI_WIFI_PASSWORD="<password>"
 CONFIG_AAI_FOLLOWUP_MS=6000
-CONFIG_AAI_VOLUME=100
+CONFIG_AAI_VOLUME=80
 CONFIG_SR_MN_EN_NONE=n
 CONFIG_SR_MN_EN_MULTINET7_QUANT=y
 CONFIG_AAI_WAKE_PHRASES="hi jack;hey jack"
@@ -65,9 +67,12 @@ Jack is published to the aai studio (`npx aai login` once, then `npm run publish
 
 Deployed, the guest book lives in the agent's memory for as long as its sandbox runs (usually all night); a redeploy or restart clears it.
 
+## Jack's voice
+Jack speaks through the newer streaming TTS cluster: `assemblyAITts({ voice: "george", host: "streaming-tts.use1.assemblyai.com" })` in `agent/agent.ts`. On Oct 20 it reported model `assemblyai-tts-mul-4brem-2026-10-17` (a `model` parameter is ignored: the cluster serves its current checkpoint) and first audio in ~340 ms.
+
 ## Set the board's Wi-Fi from your phone
 
-The board needs a network with open internet: AssemblyAI-SF-Employee does NOT work (it reaches a laptop but not the internet, and the signal is weak). A phone hotspot works: on iPhone the network name has a curly apostrophe (Harnoor’s iPhone), and **Maximize Compatibility** must be on or the board can't see it. A phone hotspot or the venue's password Wi-Fi is fine; it must be 2.4 GHz, with no "click to accept" page.
+The board needs a network with open internet: AssemblyAI-SF-Employee does NOT work (it reaches a laptop but not the internet, and the signal is weak). A phone hotspot works: on iPhone the network name has a curly apostrophe (Harnoor’s iPhone), and **Maximize Compatibility** must be on or the board can't see it. An iPhone stops advertising its hotspot when nothing is connected and the Personal Hotspot screen is closed: open that screen while the board powers up. Once joined, the board stays connected. A phone hotspot or the venue's password Wi-Fi is fine; it must be 2.4 GHz, with no "click to accept" page.
 
 1. Install **ESP SoftAP Prov** (Espressif) from the App Store or Google Play.
 2. Power the board. With no saved network (or 30 s after the saved one is out of reach) the LED ring glows amber and it broadcasts **`AAI-xxxxxx`** (this board: `AAI-78A3B8`).

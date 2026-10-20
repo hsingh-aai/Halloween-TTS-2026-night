@@ -28,7 +28,7 @@ index c9c1111..9e4dfc1 100644
          int "Follow-up window (ms)"
          default 3000
 diff --git a/firmware/components/aai_device/agent.c b/firmware/components/aai_device/agent.c
-index ab5852d..98cae77 100644
+index ab5852d..5dbc511 100644
 --- a/firmware/components/aai_device/agent.c
 +++ b/firmware/components/aai_device/agent.c
 @@ -13,6 +13,7 @@
@@ -48,7 +48,7 @@ index ab5852d..98cae77 100644
  #define TEXT_MAX           8192
  #define RESUME_WINDOW_US   (110LL * 1000 * 1000)  // server keeps sessions 120 s
  #define PROGRESS_EVERY_US  (500 * 1000)
-@@ -525,17 +526,77 @@ void agent_init(void)
+@@ -525,17 +526,78 @@ void agent_init(void)
      esp_log_level_set("websocket_client", ESP_LOG_ERROR);
  }
  
@@ -70,7 +70,7 @@ index ab5852d..98cae77 100644
 +    snprintf(url, sizeof(url), "%.*s/client-config", (int)(n && base[n - 1] == '/' ? n - 1 : n), base);
 +    esp_http_client_config_t cfg = {
 +        .url = url,
-+        .timeout_ms = 8000,
++        .timeout_ms = 12000,  // a sandbox waking from idle answers slowly
 +        .crt_bundle_attach = esp_crt_bundle_attach,
 +    };
 +    esp_http_client_handle_t h = esp_http_client_init(&cfg);
@@ -118,7 +118,8 @@ index ab5852d..98cae77 100644
 +    bool published = agent_is_published(base);
 +    if (published) {
 +        int64_t tt = now_us();
-+        if (!fetch_ticket(base)) {
++        // One retry: a hotspot hiccup or a cold sandbox shouldn't cost a guest their turn.
++        if (!fetch_ticket(base) && !fetch_ticket(base)) {
 +            aai_events_post(AAI_EVENT_SESSION_CLOSED, NULL, 0);
 +            return;
 +        }
@@ -129,7 +130,7 @@ index ab5852d..98cae77 100644
      if (!resume) {
          s_session_has_turns = false;
      }
-@@ -547,6 +608,10 @@ void agent_start(void)
+@@ -547,6 +609,10 @@ void agent_start(void)
          ESP_LOGW(TAG, "device address too long for the session URL; connecting without it");
          proto_session_url(base, sid, client, NULL, uri, sizeof(uri));
      }
@@ -344,7 +345,7 @@ index 3a6f122..7e26c58 100644
      xTaskCreatePinnedToCoreWithCaps(feed_task, "afe_feed", 4096, NULL, 10, NULL, 0, MALLOC_CAP_SPIRAM);
      xTaskCreatePinnedToCoreWithCaps(fetch_task, "afe_fetch", 4096, NULL, 10, NULL, 1, MALLOC_CAP_SPIRAM);
 diff --git a/firmware/components/aai_device/wifi.c b/firmware/components/aai_device/wifi.c
-index eb2ff42..e200296 100644
+index eb2ff42..6a84ff4 100644
 --- a/firmware/components/aai_device/wifi.c
 +++ b/firmware/components/aai_device/wifi.c
 @@ -13,6 +13,7 @@
@@ -409,7 +410,23 @@ index eb2ff42..e200296 100644
          xEventGroupClearBits(s_events, CONNECTED);
          esp_wifi_connect();
      } else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP) {
-@@ -132,6 +177,7 @@ void wifi_start(void)
+@@ -88,7 +133,15 @@ static void fallback_task(void *arg)
+ {
+     if (!wifi_wait_connected(CONFIG_AAI_PROV_FALLBACK_S * 1000)) {
+         ESP_LOGW(TAG, "saved network unreachable for %d s", CONFIG_AAI_PROV_FALLBACK_S);
++        // Provisioning can't start while the station is mid-connect ("sta is connecting,
++        // cannot set config"): pause the retries, start it, then keep retrying the saved
++        // network beside the setup access point (a phone hotspot may come back).
++        s_scanning = true;
++        esp_wifi_disconnect();
++        vTaskDelay(pdMS_TO_TICKS(300));
+         start_provisioning();
++        s_scanning = false;
++        esp_wifi_connect();
+     }
+     vTaskDelete(NULL);
+ }
+@@ -132,6 +185,7 @@ void wifi_start(void)
          }
      }
      ESP_ERROR_CHECK(esp_wifi_start());

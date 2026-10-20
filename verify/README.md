@@ -15,4 +15,4 @@ node verify/verify.js                     # all four
 node verify/verify.js reaper jack         # some
 node verify/verify.js device --url wss://alexkroman--aai-server-web-server.modal.run/agent/websocket
 ```
-Device Jack defaults to the local agent (`aai dev` on port 3000). Replies come from a model, so rerun a single failure before changing a prompt. The board check writes a test guest ("Zebulon") into Jack's guest book; clear `device/agent/data/guests.json` before the event.
+Device Jack defaults to the local agent (`aai dev` on port 3000). Replies come from a model, so rerun a single failure before changing a prompt. The board check writes a test guest ("Marcus") into Jack's guest book; clear `device/agent/data/guests.json` before the event.

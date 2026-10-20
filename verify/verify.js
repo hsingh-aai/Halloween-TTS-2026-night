@@ -129,13 +129,13 @@ const SUITES = {
       },
       {
         title: "remembers a returning guest (guest book)",
-        lines: ["Hi, I'm Zebulon and I'm a dentist."],
-        then: { lines: ["Hey Jack, it's Zebulon again!"] },
+        lines: ["Hi, I'm Marcus and I'm a dentist."],
+        then: { lines: ["Hey Jack, it's Marcus again!"] },
         checks: [
           [1, "roasts the job on first visit", has(/dent|floss|teeth|tooth|drill|cavit/i, "a dentist roast")],
         ],
         thenChecks: [
-          [1, "remembers him in a NEW conversation", has(/dent|floss|teeth|tooth|back|again|remember|return/i, "a callback to Zebulon's visit")],
+          [1, "remembers him in a NEW conversation (calls back his job)", has(/dent|floss|teeth|tooth|molar|cavit|drill/i, "a callback to Marcus being a dentist")],
         ],
       },
     ],
