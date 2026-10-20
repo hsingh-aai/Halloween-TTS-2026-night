@@ -41,7 +41,7 @@ index c9c1111..9e4dfc1 100644
          int "Follow-up window (ms)"
          default 3000
 diff --git a/firmware/components/aai_device/agent.c b/firmware/components/aai_device/agent.c
-index ab5852d..bb22c0b 100644
+index ab5852d..a5fed43 100644
 --- a/firmware/components/aai_device/agent.c
 +++ b/firmware/components/aai_device/agent.c
 @@ -13,6 +13,7 @@
@@ -250,7 +250,7 @@ index ab5852d..bb22c0b 100644
  }
  
  static void play_cue(const cue_t *cue)
-@@ -654,6 +743,22 @@ static void play_cue(const cue_t *cue)
+@@ -654,6 +743,26 @@ static void play_cue(const cue_t *cue)
      wake_player();
  }
  
@@ -261,9 +261,13 @@ index ab5852d..bb22c0b 100644
 +    static unsigned next;
 +    if (s_cackle_pending <= 0) return;
 +    int64_t now = now_us();
-+    bool reply_done = s_cackle_text_done || now - s_cackle_since_us > 8 * 1000 * 1000;
-+    bool quiet = xStreamBufferBytesAvailable(s_spk_sb) == 0 && now - s_last_reply_us > 400 * 1000;
-+    if (!reply_done || !quiet || now - s_cackle_since_us < 300 * 1000) return;
++    // The reply's text arrives before its audio, so "nothing playing" is also true just
++    // BEFORE she speaks: wait until some of her reply has actually played since the cackle
++    // was asked for, and then drained. (12 s fallback, e.g. a cackle with no words.)
++    bool spoke = s_last_reply_us > s_cackle_since_us;
++    bool drained = xStreamBufferBytesAvailable(s_spk_sb) == 0 && now - s_last_reply_us > 400 * 1000;
++    bool timed_out = now - s_cackle_since_us > 12 * 1000 * 1000;
++    if (!((s_cackle_text_done && spoke && drained) || (timed_out && drained))) return;
 +    s_cackle_pending--;
 +    s_cackle_text_done = false;
 +    ESP_LOGI(TAG, "cackle");
@@ -273,7 +277,7 @@ index ab5852d..bb22c0b 100644
  void agent_play_chime(void) { play_cue(&s_chime); }
  
  void agent_play_tone(int freq_hz, int ms)
-@@ -702,7 +807,8 @@ bool agent_talking(void)
+@@ -702,7 +811,8 @@ bool agent_talking(void)
      if (!s_spk_sb) {
          return false;  // agent_init() not called yet
      }
