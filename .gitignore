@@ -11,3 +11,6 @@ out/clone-*.wav
 characters/*/laughs/
 characters/*/cackles.ts
 characters/*/node_modules/
+out/laughs/
+out/showcase/
+out/therapista/
