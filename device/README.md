@@ -2,7 +2,10 @@
 
 Jack lives in a Waveshare ESP32-S3-AUDIO-Board running [aai-device](https://github.com/alexkroman/aai-device) firmware, and talks to the `agent/` here (an [aai](https://www.npmjs.com/package/@alexkroman1/aai) voice agent) running on a laptop on the same Wi-Fi.
 
-Say **"Hi Jason"** (closest built-in wake word; Jason is Jack's stage name), then talk.
+Say **"Hi Jack"** (or "Hey Jack", or the built-in "Hi Jason"), then talk. "Hi Jack" is a MultiNet phrase from `firmware/aai-device-jack.patch`; WakeNet has no trained "Jack" model.
+
+## Wi-Fi signal matters
+The board streams audio both ways, so it needs a strong signal: aim for an RSSI of -65 dBm or better (the serial log prints `rssi:` when it joins). At -85 dBm (far from the access point) sessions drop after a few seconds and Jack's voice stutters. Put the pumpkin near the access point, or next to a phone hotspot.
 
 ## Things to try
 - "Introduce yourself" for the full headliner intro.
@@ -23,8 +26,10 @@ AAI_DEV_HOST=0.0.0.0 npx aai dev --port 3000
 Memory is `agent/data/guests.json` (gitignored): name, job, visits and the jokes Jack told. Delete it to start the party fresh.
 
 ## Flash the board (ESP-IDF v5.5)
+Our firmware changes are in `firmware/aai-device-jack.patch`: the "Hi Jack" wake phrase (MultiNet, loaded only while idle so streaming keeps its RAM), a 4 s send timeout for slower Wi-Fi, and accepting the camelCase event names the published aai SDK sends.
 ```
-git clone https://github.com/alexkroman/aai-device && cd aai-device/firmware
+git clone https://github.com/alexkroman/aai-device && cd aai-device
+git apply "<this repo>/device/firmware/aai-device-jack.patch" && cd firmware
 cat > sdkconfig.defaults.local <<'CFG'
 CONFIG_SR_WN_WN9_COMPUTER_TTS=n
 CONFIG_SR_WN_WN9_HIJASON_TTS2=y
@@ -33,7 +38,12 @@ CONFIG_AAI_CLIENT_ID="jack-pumpkin"
 CONFIG_AAI_WIFI_SSID="<ssid>"
 CONFIG_AAI_WIFI_PASSWORD="<password>"
 CONFIG_AAI_FOLLOWUP_MS=6000
-CONFIG_AAI_VOLUME=85
+CONFIG_AAI_VOLUME=100
+CONFIG_SR_MN_EN_NONE=n
+CONFIG_SR_MN_EN_MULTINET7_QUANT=y
+CONFIG_AAI_WAKE_PHRASES="hi jack;hey jack"
+CONFIG_LWIP_TCP_SND_BUF_DEFAULT=23040
+CONFIG_LWIP_TCP_WND_DEFAULT=23040
 CFG
 . ~/esp/esp-idf-v5.5/export.sh && idf.py set-target esp32s3 && idf.py -p /dev/cu.usbmodem* flash
 ```

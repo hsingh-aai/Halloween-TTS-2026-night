@@ -10,9 +10,10 @@ import { guestBookContext } from "./guests.ts";
 export default agent({
   name: "Jack the Roaster",
   description: "Pumpkin-headed comedian for the Text-to-Screech Halloween happy hour",
-  // The device plays its own chime and connects with ?resume=1, so this is only heard
-  // by browser clients of `aai dev`.
-  greeting: "Well, well, well, a live one! I'm Jack. Tell me your name, I've got a rhyme ready.",
+  // Silent start: the board's chime already says "I'm listening", and the mic is muted
+  // while Jack talks, so a greeting on every wake would swallow "Hi Jack, introduce
+  // yourself". (The firmware's ?resume=1 should suppress it, but SDK 0.14 speaks it anyway.)
+  greeting: "",
   tts: assemblyAITts({ voice: "george" }),
   // The board's AFE already does echo cancellation and beamforming, and party guests
   // stand back from it, so near-field voice focus would cut them out.

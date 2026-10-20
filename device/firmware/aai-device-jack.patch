@@ -1,0 +1,227 @@
+diff --git a/firmware/.gitignore b/firmware/.gitignore
+index 5895720..5a6bd4e 100644
+--- a/firmware/.gitignore
++++ b/firmware/.gitignore
+@@ -8,3 +8,4 @@ build-fuzz/
+ build-cov/
+ test/device/.last-pass
+ Kconfig.new
++sdkconfig.event.local
+diff --git a/firmware/components/aai_device/Kconfig b/firmware/components/aai_device/Kconfig
+index c9c1111..9e4dfc1 100644
+--- a/firmware/components/aai_device/Kconfig
++++ b/firmware/components/aai_device/Kconfig
+@@ -54,6 +54,14 @@ menu "AAI Voice Device"
+             for the inbox socket (WS /inbox) that reminders are pushed to. 1-64 of
+             A-Z a-z 0-9 _ -. Empty uses "speaker-" and the end of the Wi-Fi MAC.
+ 
++    config AAI_WAKE_PHRASES
++        string "Extra wake phrases (MultiNet, ';'-separated)"
++        default ""
++        help
++            English phrases that wake the device beside the WakeNet word, e.g. "hi jack;hey jack",
++            recognised by MultiNet from text with no training. Needs an English MultiNet model
++            (CONFIG_SR_MN_EN_MULTINET7_QUANT). Listened for only while idle. Empty: off.
++
+     config AAI_FOLLOWUP_MS
+         int "Follow-up window (ms)"
+         default 3000
+diff --git a/firmware/components/aai_device/agent.c b/firmware/components/aai_device/agent.c
+index ab5852d..9dee5f2 100644
+--- a/firmware/components/aai_device/agent.c
++++ b/firmware/components/aai_device/agent.c
+@@ -37,7 +37,7 @@ static const char *TAG = "agent";
+ // "drop the frame" knob: 50 ms (the old mic value) turned a brief Wi-Fi stall into a
+ // dead session. Backpressure is absorbed upstream instead — agent_push_mic() never
+ // blocks, so a slow socket drops mic audio at the stream buffer.
+-#define WS_SEND_TIMEOUT_MS 1000
++#define WS_SEND_TIMEOUT_MS 4000  // venue Wi-Fi and the internet are slower than a home LAN
+ #define TEXT_MAX           8192
+ #define RESUME_WINDOW_US   (110LL * 1000 * 1000)  // server keeps sessions 120 s
+ #define PROGRESS_EVERY_US  (500 * 1000)
+diff --git a/firmware/components/aai_device/protocol.c b/firmware/components/aai_device/protocol.c
+index 8add13b..d385b85 100644
+--- a/firmware/components/aai_device/protocol.c
++++ b/firmware/components/aai_device/protocol.c
+@@ -40,6 +40,7 @@ bool proto_parse(const char *json, size_t len, proto_msg_t *out)
+         return false;
+     }
+ 
++    // Both spellings: the published aai SDK (0.14) sends camelCase names for these three.
+     if (strcmp(type, "session.configured") == 0) {
+         out->type = PROTO_SESSION_CONFIGURED;
+         out->sample_rate = valid_rate(cJSON_GetObjectItem(msg, "sampleRate"), PROTO_DEFAULT_SAMPLE_RATE);
+@@ -49,10 +50,10 @@ bool proto_parse(const char *json, size_t len, proto_msg_t *out)
+         out->type = PROTO_REPLY_CANCELLED;
+     } else if (strcmp(type, "session.reset") == 0) {
+         out->type = PROTO_SESSION_RESET;
+-    } else if (strcmp(type, "user-transcript.committed") == 0) {
++    } else if (strcmp(type, "user-transcript.committed") == 0 || strcmp(type, "userTranscript.committed") == 0) {
+         out->type = PROTO_USER_TRANSCRIPT;
+         copy_str(out->text, sizeof(out->text), cJSON_GetObjectItem(msg, "text"));
+-    } else if (strcmp(type, "agent-transcript.committed") == 0) {
++    } else if (strcmp(type, "agent-transcript.committed") == 0 || strcmp(type, "agentTranscript.committed") == 0) {
+         out->type = PROTO_AGENT_TRANSCRIPT;
+         copy_str(out->text, sizeof(out->text), cJSON_GetObjectItem(msg, "text"));
+     } else if (strcmp(type, "tool.called") == 0) {
+@@ -63,7 +64,7 @@ bool proto_parse(const char *json, size_t len, proto_msg_t *out)
+         out->fatal = cJSON_IsTrue(cJSON_GetObjectItem(msg, "fatal"));
+         copy_str(out->code, sizeof(out->code), cJSON_GetObjectItem(msg, "code"));
+         copy_str(out->text, sizeof(out->text), cJSON_GetObjectItem(msg, "message"));
+-    } else if (strcmp(type, "session.timed-out") == 0) {
++    } else if (strcmp(type, "session.timed-out") == 0 || strcmp(type, "session.timedOut") == 0) {
+         out->type = PROTO_TIMED_OUT;
+     } else if (strcmp(type, "custom.emitted") == 0) {
+         out->type = parse_custom(msg);
+diff --git a/firmware/components/aai_device/voice.c b/firmware/components/aai_device/voice.c
+index 3a6f122..7e26c58 100644
+--- a/firmware/components/aai_device/voice.c
++++ b/firmware/components/aai_device/voice.c
+@@ -2,10 +2,14 @@
+ 
+ #include <assert.h>
+ #include <stdatomic.h>
++#include <string.h>
+ #include "aai_events.h"
+ #include "agent.h"
+ #include "board.h"
+ #include "esp_afe_sr_models.h"
++#include "esp_mn_iface.h"
++#include "esp_mn_models.h"
++#include "esp_mn_speech_commands.h"
+ #include "esp_heap_caps.h"
+ #include "esp_log.h"
+ #include "esp_timer.h"
+@@ -17,10 +21,100 @@
+ static const char *TAG = "voice";
+ 
+ static const esp_afe_sr_iface_t *s_afe;
++static char s_afe_wn_name[32] = "wakenet";
+ static esp_afe_sr_data_t *s_afe_data;
+ static voice_source_t s_source;
+ static atomic_bool s_streaming;
+ 
++// Wake PHRASES (CONFIG_AAI_WAKE_PHRASES, e.g. "hi jack;hey jack"): MultiNet English speech
++// commands, recognised from text with no training, running beside WakeNet while idle. A
++// trained WakeNet word is more robust; this is for names WakeNet has no model for.
++static const esp_mn_iface_t *s_mn;
++static model_iface_data_t *s_mn_data;
++static int16_t *s_mn_buf;
++static int s_mn_chunk, s_mn_fill;
++static srmodel_list_t *s_models;
++static char *s_mn_name;
++static int64_t s_mn_hold_until_us;  // after a wake, stay unloaded until streaming has had time to start
++
++static void phrases_unload(void);
++
++static void wake(const char *what)
++{
++    phrases_unload();  // free its RAM before the connect, not after
++    s_mn_hold_until_us = esp_timer_get_time() + 10 * 1000000LL;
++    int64_t detected_us = esp_timer_get_time();
++    ESP_LOGI(TAG, "wake word detected (%s)", what);
++    aai_events_post(AAI_EVENT_WAKE, &detected_us, sizeof(detected_us));
++}
++
++// Loaded only while idle and unloaded for a conversation: MultiNet takes internal RAM the
++// Wi-Fi stack needs to stream audio (with it resident, sends stalled and sessions dropped).
++static void phrases_load(void)
++{
++    s_mn = esp_mn_handle_from_name(s_mn_name);
++    s_mn_data = s_mn->create(s_mn_name, 3000);
++    esp_mn_commands_alloc(s_mn, s_mn_data);
++    char buf[128];
++    strlcpy(buf, CONFIG_AAI_WAKE_PHRASES, sizeof(buf));
++    int id = 1;
++    for (char *save = NULL, *tok = strtok_r(buf, ";", &save); tok; tok = strtok_r(NULL, ";", &save)) {
++        esp_mn_commands_add(id++, tok);
++    }
++    esp_mn_error_t *err = esp_mn_commands_update();
++    if (err && err->num > 0) ESP_LOGW(TAG, "%d wake phrase(s) rejected by MultiNet", err->num);
++    s_mn_chunk = s_mn->get_samp_chunksize(s_mn_data);
++    if (!s_mn_buf) s_mn_buf = heap_caps_malloc(s_mn_chunk * sizeof(int16_t), MALLOC_CAP_SPIRAM);
++    s_mn_fill = 0;
++}
++
++static void phrases_unload(void)
++{
++    if (!s_mn) return;
++    esp_mn_commands_free();
++    s_mn->destroy(s_mn_data);
++    s_mn = NULL;
++    s_mn_data = NULL;
++}
++
++static void phrases_init(srmodel_list_t *models)
++{
++    if (!CONFIG_AAI_WAKE_PHRASES[0]) return;
++    s_models = models;
++    s_mn_name = esp_srmodel_filter(models, ESP_MN_PREFIX, ESP_MN_ENGLISH);
++    if (!s_mn_name) {
++        ESP_LOGW(TAG, "wake phrases set but no English MultiNet model is built in (CONFIG_SR_MN_EN_*)");
++        return;
++    }
++    phrases_load();
++    ESP_LOGI(TAG, "wake phrases \"%s\" on %s", CONFIG_AAI_WAKE_PHRASES, s_mn_name);
++}
++
++// Feed processed audio to MultiNet in its own chunk size; only while idle, so Jack saying
++// his own name mid-reply can't wake (and interrupt) him.
++static void phrases_feed(const int16_t *pcm, size_t samples)
++{
++    if (!s_mn) return;
++    while (samples) {
++        size_t n = s_mn_chunk - s_mn_fill;
++        if (n > samples) n = samples;
++        memcpy(s_mn_buf + s_mn_fill, pcm, n * sizeof(int16_t));
++        s_mn_fill += n, pcm += n, samples -= n;
++        if (s_mn_fill < s_mn_chunk) break;
++        s_mn_fill = 0;
++        esp_mn_state_t st = s_mn->detect(s_mn_data, s_mn_buf);
++        if (st == ESP_MN_STATE_DETECTED) {
++            esp_mn_results_t *r = s_mn->get_results(s_mn_data);
++            char heard[32];
++            strlcpy(heard, esp_mn_commands_get_string(r->command_id[0]), sizeof(heard));
++            wake(heard);  // unloads MultiNet
++            return;
++        } else if (st == ESP_MN_STATE_TIMEOUT) {
++            s_mn->clean(s_mn_data);  // keep listening: there is no "after the wake word" here
++        }
++    }
++}
++
+ #ifdef CONFIG_AAI_FULL_DUPLEX
+ static const bool k_full_duplex = true;
+ #else
+@@ -50,11 +144,17 @@ static void fetch_task(void *arg)
+         if (!res || res->ret_value == ESP_FAIL) {
+             continue;
+         }
++        if (s_mn_name) {
++            if (s_streaming && s_mn) {
++                phrases_unload();
++            } else if (!s_streaming && !s_mn && esp_timer_get_time() > s_mn_hold_until_us) {
++                phrases_load();
++            }
++        }
+         if (res->wakeup_state == WAKENET_DETECTED) {
+-            // When it was heard, so the handler can tell a slow detection from a slow loop.
+-            int64_t detected_us = esp_timer_get_time();
+-            ESP_LOGI(TAG, "wake word detected");
+-            aai_events_post(AAI_EVENT_WAKE, &detected_us, sizeof(detected_us));
++            wake(s_afe_wn_name);
++        } else if (!s_streaming) {
++            phrases_feed(res->data, res->data_size / sizeof(int16_t));
+         }
+         if (s_streaming) {
+             size_t samples = res->data_size / sizeof(int16_t);
+@@ -84,7 +184,9 @@ void voice_init(voice_source_t source)
+     s_afe_data = s_afe->create_from_config(cfg);
+     // DET_MODE_90 (0) is the more sensitive; DET_MODE_95 (1) needs a clearer "Computer".
+     ESP_LOGI(TAG, "wake word model: %s, detection mode %d", cfg->wakenet_model_name, (int)cfg->wakenet_mode);
++    if (cfg->wakenet_model_name) strlcpy(s_afe_wn_name, cfg->wakenet_model_name, sizeof(s_afe_wn_name));
+     afe_config_free(cfg);
++    phrases_init(models);
+ 
+     xTaskCreatePinnedToCoreWithCaps(feed_task, "afe_feed", 4096, NULL, 10, NULL, 0, MALLOC_CAP_SPIRAM);
+     xTaskCreatePinnedToCoreWithCaps(fetch_task, "afe_fetch", 4096, NULL, 10, NULL, 1, MALLOC_CAP_SPIRAM);
