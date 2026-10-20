@@ -39,5 +39,25 @@ CFG
 ```
 `sdkconfig.defaults.local` is gitignored upstream; it holds the Wi-Fi password.
 
-## Publishing to the aai studio
-`npx aai login` once, then `npm run publish:agent`. A published agent has no disk, so the guest book needs a hosted store before memory works there; the local run above is the event setup.
+## Deployed on the aai studio (no laptop needed)
+
+Jack is published to the aai studio (`npx aai login` once, then `npm run publish:agent` from `device/agent`):
+- Agent: https://alexkroman--aai-server-web-server.modal.run/agent
+- Studio: https://alexkroman--aai-server-web-server.modal.run/studio/chat/agent
+- The board connects to `wss://alexkroman--aai-server-web-server.modal.run/agent/websocket` (set in `CONFIG_AAI_AGENT_URL`, no Wi-Fi compiled in).
+
+Deployed, the guest book lives in the agent's memory for as long as its sandbox runs (usually all night); a redeploy or restart clears it.
+
+## Set the board's Wi-Fi from your phone
+
+The board needs a network with open internet: corporate Wi-Fi that blocks unregistered devices won't work (it can reach a laptop but not the studio). A phone hotspot or the venue's password Wi-Fi is fine; it must be 2.4 GHz, with no "click to accept" page.
+
+1. Install **ESP SoftAP Prov** (Espressif) from the App Store or Google Play.
+2. Power the board. With no saved network (or 30 s after the saved one is out of reach) the LED ring glows amber and it broadcasts **`AAI-xxxxxx`** (this board: `AAI-78A3B8`).
+3. In the app: **Provision Device**, then **I don't have a QR code**.
+4. Join `AAI-xxxxxx` in your phone's Wi-Fi settings (no password), then go back to the app.
+5. Proof of possession: **`aai-speaker`**.
+6. Pick the network and enter its password. The ring stops glowing amber when it's online.
+7. Say **"Hi Jason"**.
+
+To use a phone hotspot, turn on **Maximize Compatibility** (iPhone) so it broadcasts on 2.4 GHz, and provision the board with the hotspot as its network from a second phone, or from the same phone before switching the hotspot on.

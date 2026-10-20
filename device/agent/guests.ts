@@ -10,12 +10,19 @@ export type Guest = { name: string; job?: string; jokes: string[]; visits: numbe
 const FILE = path.join(process.env.JACK_DATA_DIR ?? path.join(process.cwd(), "data"), "guests.json");
 const MAX_IN_PROMPT = 60;
 
+// Deployed to the studio there is no writable disk, so the book also lives in this
+// process: it then lasts as long as the sandbox does (typically the whole night).
+let inMemory: Record<string, Guest> = {};
+let diskWorks = true;
+
 export async function readGuests(): Promise<Record<string, Guest>> {
+  if (!diskWorks) return inMemory;
   try {
-    return JSON.parse(await readFile(FILE, "utf8"));
+    inMemory = JSON.parse(await readFile(FILE, "utf8"));
   } catch {
-    return {};
+    // no file yet, or no disk: the in-process copy is the book
   }
+  return inMemory;
 }
 
 // Serialized: the model may call remember_guest twice in one step.
@@ -30,9 +37,16 @@ export function updateGuest(name: string, patch: { job?: string; joke?: string; 
     if (patch.visit) g.visits += 1;
     g.lastSeen = new Date().toISOString();
     book[key] = g;
-    await mkdir(path.dirname(FILE), { recursive: true });
-    await writeFile(`${FILE}.tmp`, JSON.stringify(book, null, 2));
-    await rename(`${FILE}.tmp`, FILE);
+    inMemory = book;
+    if (diskWorks) {
+      try {
+        await mkdir(path.dirname(FILE), { recursive: true });
+        await writeFile(`${FILE}.tmp`, JSON.stringify(book, null, 2));
+        await rename(`${FILE}.tmp`, FILE);
+      } catch {
+        diskWorks = false;
+      }
+    }
     return g;
   });
   queue = run.catch(() => {});
