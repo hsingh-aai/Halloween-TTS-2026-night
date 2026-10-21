@@ -20,5 +20,13 @@
     "source": "jack the ripper audio.wav (29.97 s s\u00e9ance host), cloned Oct 21 2026 with consent attested by Harnoor",
     "expires": "2026-12-20 (60-day retention)",
     "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
+  },
+  "jack": {
+    "voice_id": "01a16010-f38d-736b-b9c8-cc4c0e9b8892",
+    "name in API": "Jack the Roaster",
+    "model": "assemblyai-tts-1",
+    "source": "Voice Acting - Southern Gentleman.mp3 (17 s), cloned Oct 21 2026 with consent attested by Harnoor",
+    "expires": "2026-12-20 (60-day retention)",
+    "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
   }
 }

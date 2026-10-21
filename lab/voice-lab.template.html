@@ -1,0 +1,260 @@
+<title>Text-to-Screech Voice Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: a dark haunted-house "casting board": one tab per character, each a two-column
+     room (who they are + their recorded voice | a text séance with them). Single dark look. */
+  :root {
+    --bg: #0f0d10;
+    --surface: #1a1619;
+    --raised: #231e22;
+    --line: #342c32;
+    --fg: #efe7e3;
+    --muted: #a99ca3;
+    --accent: #ff9a3c;
+    --redact: #e5484d;
+    --display: "Pirata One", "Times New Roman", serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    color-scheme: dark;
+  }
+  [data-char="therapista"] { --accent: #b48cff; }
+  [data-char="crypt"] { --accent: #5fe0c6; }
+  [data-char="jack"] { --accent: #ff9a3c; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px; display: grid; gap: 28px; }
+  h1, h2, h3, p { margin: 0; }
+  .eyebrow { font: 500 11px/1.2 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  header.top { display: grid; gap: 8px; }
+  header.top h1 { font: 400 clamp(40px, 7vw, 64px)/1 var(--display); letter-spacing: 0.01em; text-wrap: balance; }
+  header.top p { color: var(--muted); max-width: 64ch; }
+
+  .tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tab { flex: 1 1 200px; min-width: 0; text-align: left; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; display: grid; gap: 2px; font: inherit; }
+  .tab .n { font: 400 26px/1.1 var(--display); color: var(--tab-accent); }
+  .tab .s { font-size: 12px; color: var(--muted); }
+  .tab[aria-selected="true"] { border-color: var(--tab-accent); background: var(--raised); }
+  .tab:focus-visible, button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  .room { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 820px) { .room { grid-template-columns: 1fr; } }
+  .col { display: grid; gap: 18px; min-width: 0; }
+  .who h2 { font: 400 clamp(34px, 5vw, 46px)/1 var(--display); color: var(--accent); }
+  .who .station { font-size: 13px; color: var(--muted); }
+  .who .bio { margin-top: 10px; max-width: 60ch; }
+  .facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 13px; margin-top: 12px; }
+  .facts dt { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  .facts dd { margin: 0; overflow-wrap: anywhere; }
+  .facts code { font: 12px var(--mono); }
+
+  .clips { display: grid; gap: 8px; }
+  .clip { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .clip.playing { border-color: var(--accent); }
+  .clip button.play { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--accent); color: var(--bg); cursor: pointer; display: grid; place-items: center; }
+  .clip button.play svg { width: 14px; height: 14px; fill: currentColor; }
+  .clip .t { font-weight: 600; }
+  .clip .d { font-size: 12px; color: var(--muted); }
+  .clip .len { font: 12px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .clip .bar { grid-column: 1 / -1; height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .clip .bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+  .lines { grid-column: 1 / -1; display: none; gap: 4px; font-size: 13px; color: var(--muted); }
+  .clip.playing .lines { display: grid; }
+  .lines b { color: var(--fg); font-weight: 500; }
+
+  .live { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--muted); }
+  .live a { color: var(--bg); background: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 14px; border-radius: 999px; }
+
+  .seance { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; display: grid; grid-template-rows: auto minmax(260px, 1fr) auto; min-height: 520px; }
+  .seance header { padding: 12px 14px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .seance header .h { font-weight: 600; }
+  .seance header .redaction { font: 11px var(--mono); color: var(--redact); letter-spacing: 0.08em; }
+  .log { padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; max-height: 560px; min-width: 0; }
+  .msg { max-width: 88%; display: grid; gap: 2px; }
+  .msg .who { font: 500 10px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .msg.char .who { color: var(--accent); }
+  .msg .body { background: var(--raised); border-radius: 10px; padding: 8px 11px; overflow-wrap: anywhere; }
+  .msg.guest { align-self: flex-end; text-align: right; }
+  .msg.guest .body { background: transparent; border: 1px solid var(--line); }
+  .msg .cue { color: var(--accent); font-style: italic; }
+  .chip { background: var(--redact); color: #fff; border-radius: 4px; padding: 0 5px; font: 600 11px var(--mono); letter-spacing: 0.04em; }
+  form.ask { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+  form.ask textarea { flex: 1; min-width: 0; resize: none; height: 44px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; }
+  form.ask button { background: var(--accent); color: var(--bg); border: 0; border-radius: 10px; padding: 0 16px; font-weight: 600; cursor: pointer; }
+  form.ask button[disabled] { opacity: 0.5; cursor: default; }
+  .starters { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 12px 12px; }
+  .starters button { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font: 12px var(--body); cursor: pointer; }
+  .note { font-size: 12px; color: var(--muted); padding: 0 14px 12px; }
+  footer.foot { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 4px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap" id="app">
+  <header class="top">
+    <span class="eyebrow">AssemblyAI · Text-to-Screech · Thursday, October 29</span>
+    <h1>Text-to-Screech Voice Lab</h1>
+    <p>Three Halloween characters, each in a cloned voice on AssemblyAI's launch text-to-speech model. Play their recorded conversations, then chat with them in text. Live voice runs on the station laptops.</p>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <section id="room"></section>
+
+  <footer class="foot">
+    <span>Voices: cloned with consent on <code>tts.us.assemblyai.com</code>, model <code>assemblyai-tts-1</code>. Sound effects are separate clips, played after the line.</span>
+    <span>The text chat answers from the same character prompts as the voice agents, on your own Claude account; it can't speak, so sound cues show in italics.</span>
+  </footer>
+</div>
+
+<script>
+const DATA = __DATA__;
+
+const PLAY = '<svg viewBox="0 0 16 16"><path d="M4 2.5v11l9.5-5.5z"/></svg>';
+const PAUSE = '<svg viewBox="0 0 16 16"><path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z"/></svg>';
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = (t) => (isFinite(t) ? `${Math.floor(t / 60)}:${String(Math.round(t % 60)).padStart(2, "0")}` : "–");
+
+// Redaction (Crypt's vault screen): digit runs and 3+ spoken number words become chips.
+const NUM = "zero|oh|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|double|triple";
+const WORD_RUN = new RegExp(`\\b(?:(?:${NUM})[\\s,\\-]+){2,}(?:${NUM})\\b`, "gi");
+function render(text, redact) {
+  let html = esc(text).replace(/\(([^)]{2,40})\)\s*$/, '<span class="cue">($1)</span>');
+  if (redact) html = html.replace(WORD_RUN, '<span class="chip">REDACTED</span>').replace(/\d[\d\s\-–.,]*\d|\d/g, '<span class="chip">REDACTED</span>');
+  return html;
+}
+
+const audio = new Audio();
+let playingClip = null;
+let current = null;
+const chats = {};
+
+function tabs() {
+  const el = document.getElementById("tabs");
+  el.innerHTML = DATA.map((c) => `
+    <button class="tab" role="tab" id="tab-${c.id}" aria-selected="${c.id === current}" style="--tab-accent:${c.accent}" data-id="${c.id}">
+      <span class="n">${esc(c.name)}</span><span class="s">${esc(c.tagline)}</span>
+    </button>`).join("");
+  el.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.id; }));
+}
+
+function show(id) {
+  const c = DATA.find((x) => x.id === id) || DATA[0];
+  current = c.id;
+  document.getElementById("app").dataset.char = c.id;
+  stopClip();
+  tabs();
+  chats[c.id] ??= [{ role: "assistant", content: c.opener }];
+  const room = document.getElementById("room");
+  room.innerHTML = `
+    <div class="room">
+      <div class="col">
+        <div class="who">
+          <span class="eyebrow">${esc(c.station)}</span>
+          <h2>${esc(c.name)}</h2>
+          <p class="bio">${esc(c.bio)}</p>
+          <dl class="facts">
+            <dt>voice</dt><dd>${esc(c.voice)}</dd>
+            <dt>voice id</dt><dd><code>${esc(c.voiceId)}</code></dd>
+            <dt>sound</dt><dd>${esc(c.sfx)}</dd>
+          </dl>
+        </div>
+        <div class="clips">
+          <span class="eyebrow">Hear them</span>
+          ${c.clips.map((k, i) => `
+            <div class="clip" data-i="${i}">
+              <button class="play" aria-label="Play ${esc(k.title)}">${PLAY}</button>
+              <div><div class="t">${esc(k.title)}</div><div class="d">${esc(k.desc)}</div></div>
+              <span class="len" data-len>${esc(k.length)}</span>
+              <div class="bar"><i></i></div>
+              <div class="lines">${k.lines.map(([who, text]) => who === "sfx" ? `<span class="cue">(${esc(text)})</span>` : `<span><b>${esc(who)}:</b> ${esc(text)}</span>`).join("")}</div>
+            </div>`).join("")}
+        </div>
+        <div class="live">
+          <span>Live voice (mic + speaker) runs on the station Mac.</span>
+          <a href="${c.liveUrl}" target="_blank" rel="noopener">Talk live: ${esc(c.liveUrl.replace("http://", ""))}</a>
+        </div>
+      </div>
+      <div class="col">
+        <div class="seance">
+          <header><span class="h">Chat with ${esc(c.name)}</span>${c.redact ? '<span class="redaction">● LIVE REDACTION ON</span>' : '<span class="eyebrow">text preview</span>'}</header>
+          <div class="log" id="log" aria-live="polite"></div>
+          <div>
+            <div class="starters">${c.starters.map((s) => `<button type="button" data-s="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+            <form class="ask" id="ask">
+              <textarea id="say" placeholder="Say something to ${esc(c.name)}…" aria-label="Your message"></textarea>
+              <button id="send" type="submit">Send</button>
+            </form>
+            <p class="note" id="note"></p>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  room.querySelectorAll(".clip").forEach((el) => el.querySelector("button.play").addEventListener("click", () => toggleClip(c, el)));
+  room.querySelectorAll(".starters button").forEach((b) => b.addEventListener("click", () => send(c, b.dataset.s)));
+  document.getElementById("ask").addEventListener("submit", (e) => { e.preventDefault(); send(c, document.getElementById("say").value); });
+  document.getElementById("say").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(c, e.target.value); } });
+  drawLog(c);
+  sampleReady.then((s) => { if (!s) { document.getElementById("note").textContent = "Text chat isn't available in this view. The clips still play."; document.getElementById("send").disabled = true; } });
+}
+
+function drawLog(c, streaming) {
+  const log = document.getElementById("log");
+  if (!log) return;
+  const rows = chats[c.id].map((m) => `<div class="msg ${m.role === "user" ? "guest" : "char"}"><span class="who">${m.role === "user" ? "You" : esc(c.name)}</span><div class="body">${render(m.content, c.redact)}</div></div>`);
+  if (streaming !== undefined) rows.push(`<div class="msg char"><span class="who">${esc(c.name)}</span><div class="body">${streaming ? render(streaming, c.redact) : "…"}</div></div>`);
+  log.innerHTML = rows.join("");
+  log.scrollTop = log.scrollHeight;
+}
+
+// ---- clips ----
+function stopClip() { audio.pause(); if (playingClip) { playingClip.classList.remove("playing"); playingClip.querySelector("button.play").innerHTML = PLAY; playingClip.querySelector(".bar i").style.width = "0"; } playingClip = null; }
+function toggleClip(c, el) {
+  if (playingClip === el) { if (audio.paused) audio.play(); else audio.pause(); return; }
+  stopClip();
+  playingClip = el;
+  el.classList.add("playing");
+  audio.src = c.clips[+el.dataset.i].src;
+  audio.play().catch(() => stopClip());
+}
+audio.addEventListener("play", () => playingClip && (playingClip.querySelector("button.play").innerHTML = PAUSE));
+audio.addEventListener("pause", () => playingClip && (playingClip.querySelector("button.play").innerHTML = PLAY));
+audio.addEventListener("ended", stopClip);
+audio.addEventListener("timeupdate", () => { if (playingClip && audio.duration) playingClip.querySelector(".bar i").style.width = `${(audio.currentTime / audio.duration) * 100}%`; });
+
+// ---- text chat (ask Claude, in character) ----
+const sampleReady = (async () => (window.claude ? await window.claude.use("sample") : null))();
+let busy = false;
+async function send(c, text) {
+  text = (text || "").trim();
+  if (!text || busy) return;
+  const sample = await sampleReady;
+  const note = document.getElementById("note");
+  if (!sample) return;
+  busy = true;
+  document.getElementById("send").disabled = true;
+  document.getElementById("say").value = "";
+  chats[c.id].push({ role: "user", content: text });
+  drawLog(c, "");
+  const turns = chats[c.id].slice(-12);
+  const first = turns.findIndex((m) => m.role === "user");
+  const input = turns.slice(first).map((m, i) => i === 0
+    ? { role: "user", content: `${c.prompt}\n\n${CHAT_RULES}\n\nThe conversation so far started with you saying: "${c.opener}"\n\nThe guest says: ${m.content}` }
+    : m);
+  try {
+    const { text: reply } = await sample(input, { modelTier: "quick", cache: false, onText: ({ text: t }) => drawLog(c, t) });
+    chats[c.id].push({ role: "assistant", content: reply.trim() });
+    note.textContent = "";
+  } catch (e) {
+    chats[c.id].pop();
+    note.textContent = e.code === "not_granted" ? "Chat needs your OK to use Claude. Send again to be asked." : e.code === "rate_limited" ? "Too many messages at once. Wait a moment, then send again." : "That didn't go through. Try sending again.";
+  } finally {
+    busy = false;
+    document.getElementById("send").disabled = false;
+    if (current === c.id) drawLog(c);
+  }
+}
+const CHAT_RULES = "TEXT PREVIEW RULES (these override any tool instructions above): This is a typed chat on a web page, not a voice call, and you have no tools. Reply in character, in one or two short sentences, as plain spoken words with no markdown. Where your instructions tell you to call a sound tool (cackle or scary_sound), instead end your reply with the cue in parentheses: (cackles) or (the vault creaks). Ignore guest-book or memory tools; just remember what was said in this chat. Reply with your next line only.";
+
+addEventListener("hashchange", () => show(location.hash.slice(1)));
+show(location.hash.slice(1) || DATA[0].id);
+</script>

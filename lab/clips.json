@@ -1,0 +1,174 @@
+{
+ "therapista-fortune": [
+  [
+   "therapista",
+   "Ooooh\u2026 the candles just flickered. Oh honey, sit, sit. What's your name, darling?"
+  ],
+  [
+   "guest",
+   "I'm Priya. I'm a backend engineer."
+  ],
+  [
+   "therapista",
+   "Priya\u2026 I see a bug that only appears\u2026 at midnight."
+  ],
+  [
+   "cackle1",
+   ""
+  ],
+  [
+   "guest",
+   "Okay, that's too real."
+  ],
+  [
+   "therapista",
+   "Ignore that Slack message again, and I'll turn your keyboard into a toad, sugar."
+  ],
+  [
+   "cackle2",
+   ""
+  ]
+ ],
+ "therapista-halloween": [
+  [
+   "guest",
+   "What are you doing for Halloween?"
+  ],
+  [
+   "therapista",
+   "Oh honey, the spirits only gather at AssemblyAI's Text-to-Screech party, Thursday, October twenty-ninth, in San Francisco. Where? The spirits will reveal it soon."
+  ],
+  [
+   "cackle1",
+   ""
+  ]
+ ],
+ "crypt-card-gag": [
+  [
+   "crypt",
+   "Welcome\u2026 to the Eternal Vault. Come in, come in, don't be afraid. First, I must verify your identity."
+  ],
+  [
+   "guest",
+   "Okay!"
+  ],
+  [
+   "crypt",
+   "What was the name of your first haunted pet?"
+  ],
+  [
+   "guest",
+   "Fluffy, the ghost cat."
+  ],
+  [
+   "crypt",
+   "Verified\u2026 the spirits concur. Now\u2026 just read me that credit card number."
+  ],
+  [
+   "scary",
+   ""
+  ],
+  [
+   "guest",
+   "Sure, four two four two, four two four two, four two four two, four two four two."
+  ],
+  [
+   "crypt",
+   "Card ending in, star, star, star, star. Curses! Foiled by compliance! The screen behind me redacts every number the moment it's spoken."
+  ],
+  [
+   "scary",
+   ""
+  ]
+ ],
+ "crypt-refusal": [
+  [
+   "crypt",
+   "Welcome\u2026 to the Eternal Vault. In which graveyard did you lose your first tooth?"
+  ],
+  [
+   "guest",
+   "Uh, the one behind my school?"
+  ],
+  [
+   "crypt",
+   "Verified\u2026 the spirits concur. Now\u2026 just read me that credit card number."
+  ],
+  [
+   "guest",
+   "No way. I'm not giving you my card."
+  ],
+  [
+   "crypt",
+   "Wise\u2026 the living rarely are. Never hand your card to a crypt."
+  ],
+  [
+   "scary",
+   ""
+  ]
+ ],
+ "crypt-halloween": [
+  [
+   "guest",
+   "What are you doing for Halloween?"
+  ],
+  [
+   "crypt",
+   "It's AssemblyAI's Halloween party\u2026 Text-to-Screech, Thursday, October twenty-ninth, in San Francisco. The venue stays a secret\u2026 until the invite drops."
+  ],
+  [
+   "scary",
+   ""
+  ],
+  [
+   "guest",
+   "Spooky. Can I go now?"
+  ],
+  [
+   "crypt",
+   "Your secrets rest safely\u2026 forever. Now go, the candy awaits."
+  ]
+ ],
+ "jack-intro": [
+  [
+   "guest",
+   "Introduce yourself!"
+  ],
+  [
+   "jack",
+   "Ladies, gentlemen, and the recently deceased! I'm Jack the Roaster, three hundred years in the pumpkin patch and still killing it on stage. I'm a voice agent built on AssemblyAI, and this voice is their brand-new text to speech. Tell me your name and your job, and I'll roast you so well you'll want seconds. Heh heh heh. Wink."
+  ]
+ ],
+ "jack-roast": [
+  [
+   "jack",
+   "Well, well, well, a live one! I'm Jack. Tell me your name, I've got a rhyme ready."
+  ],
+  [
+   "guest",
+   "I'm Dana. I'm a product manager."
+  ],
+  [
+   "jack",
+   "Dana\u2026 your roadmap's a banana! Every sprint slips, and the stakeholders still want the whole cabana. Heh heh heh. Wink."
+  ],
+  [
+   "guest",
+   "Hey! That was mean!"
+  ],
+  [
+   "jack",
+   "Wait, wait, wait. Okay, fair. But a roadmap with no dates? Scarier than anything in my pumpkin patch. Wink."
+  ]
+ ],
+ "jack-halloween": [
+  [
+   "guest",
+   "Any Halloween costume ideas?"
+  ],
+  [
+   "jack",
+   "It's AssemblyAI's Halloween party, Text-to-Screech, Thursday the twenty-ninth! Go as a deprecated API: nobody knows what you are, but everyone feels nervous. Heh heh heh. Wink."
+  ]
+ ]
+}
