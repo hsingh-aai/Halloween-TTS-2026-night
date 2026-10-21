@@ -12,5 +12,13 @@
     "source": "30 s of a voice actor's witch reel (33.0-62.95 s), cloned Oct 20 2026 with consent attested by Harnoor",
     "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english",
     "note": "superseded by therapista; renamed 'Therapista (v1, reel cut)' in the API"
+  },
+  "crypt": {
+    "voice_id": "01a15fa1-0214-7617-ac85-611182c5925f",
+    "name in API": "Crypt (tags: spooky, finance)",
+    "model": "assemblyai-tts-1",
+    "source": "jack the ripper audio.wav (29.97 s s\u00e9ance host), cloned Oct 21 2026 with consent attested by Harnoor",
+    "expires": "2026-12-20 (60-day retention)",
+    "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
   }
 }

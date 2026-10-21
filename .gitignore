@@ -14,3 +14,10 @@ characters/*/node_modules/
 out/laughs/
 out/showcase/
 out/therapista/
+characters/*/sounds/
+characters/*/sounds.ts
+characters/*/.env
+characters/*/data/
+characters/*/.workflow-data/
+out/crypt/
+out/jack/
