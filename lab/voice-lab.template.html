@@ -94,7 +94,7 @@
   <header class="top">
     <span class="eyebrow">AssemblyAI · Text-to-Screech · Thursday, October 29</span>
     <h1>Text-to-Screech Voice Lab</h1>
-    <p>Three Halloween characters, each in a cloned voice on AssemblyAI's launch text-to-speech model. Play their recorded conversations, then chat with them in text. Live voice runs on the station laptops.</p>
+    <p>Three Halloween characters, each in a cloned voice on AssemblyAI's launch text-to-speech model. Play their recorded conversations, chat with them in text, or talk to them live, on a laptop or your phone.</p>
   </header>
 
   <nav class="tabs" role="tablist" id="tabs"></nav>
@@ -170,8 +170,8 @@ function show(id) {
             </div>`).join("")}
         </div>
         <div class="live">
-          <span>Live voice (mic + speaker) runs on the station Mac.</span>
-          <a href="${c.liveUrl}" target="_blank" rel="noopener">Talk live: ${esc(c.liveUrl.replace("http://", ""))}</a>
+          <span>Talk out loud in their cloned voice. Opens in a new tab: allow the mic, headphones help.</span>
+          <a href="${c.liveUrl}" target="_blank" rel="noopener">Talk live with ${esc(c.name)}</a>
         </div>
       </div>
       <div class="col">
