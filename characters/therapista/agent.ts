@@ -16,10 +16,13 @@ export default agent({
   greeting: "",
   tts: assemblyAITts({
     voice: "vera",
-    host: `tts.use1.assemblyai.com/v1/ws?voice_id=${THERAPISTA_VOICE_ID}&model_id=assemblyai-tts-1&language=english&_`,
+    host: `tts.us.assemblyai.com/v1/ws?voice_id=${THERAPISTA_VOICE_ID}&model_id=assemblyai-tts-1&language=english&_`,
   }),
   stt: assemblyAIStt({ minTurnSilenceMs: 650, maxTurnSilenceMs: 2200 }),
   builtinTools: [],
+  // No generic "I'm checking on this." filler in her cloned voice: it broke character when a
+  // cackle tool call delayed a reply. She speaks first and cackles after (system prompt).
+  silence: { deadAirCoverMs: 0 },
   maxSteps: 2,
   sessionContext: () => {
     const today = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", weekday: "long", month: "long", day: "numeric" }).format(new Date());

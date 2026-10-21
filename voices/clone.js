@@ -16,7 +16,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const SERVER = process.env.AAI_TTS_SERVER ?? "https://tts.use1.assemblyai.com";
+const SERVER = process.env.AAI_TTS_SERVER ?? "https://tts.us.assemblyai.com";
 const key = process.env.ASSEMBLY_AI_KEY ??
   fs.readFileSync(path.join(here, "..", ".env"), "utf8").match(/^ASSEMBLY_AI_KEY=(.+)$/m)[1].trim();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

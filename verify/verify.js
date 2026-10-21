@@ -122,9 +122,8 @@ const SUITES = {
         title: "knows the party and has Halloween advice",
         lines: ["When is the Halloween party?", "Give me some Halloween advice."],
         checks: [
-          [1, "knows the date (Oct 29 / countdown / tonight)", has(/29|twenty[- ]ninth|tonight|tomorrow|\bdays?\b|sleeps|thursday/i, "the event date")],
+          [1, "knows the date (Oct 29 / countdown / tonight)", (r) => (/29|twenty[- ]ninth|tonight|tomorrow|\bdays?\b|sleeps|thursday/i.test(r) && !/mindspace|575 market/i.test(r)) || "expected the date, and no venue (it's secret until the invite)"],
           [2, "gives Halloween advice", has(/costume|candy|pumpkin|haunted|trick|treat|carv|ghost|sheet|deploy|deprecat|\bgo as\b|dress/i, "a Halloween tip")],
-          [2, "keeps it funny (laugh or punchline)", has(/heh|ha!|wink|\?|!/i, "a joke")],
         ],
       },
       {

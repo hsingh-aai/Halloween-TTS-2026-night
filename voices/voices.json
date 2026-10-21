@@ -1,16 +1,16 @@
 {
   "therapista": {
     "voice_id": "01a15b4b-77b1-739f-bb06-fec5f22d43df",
-    "model": "assemblyai-tts-mul-4brem-2026-10-17",
+    "model": "assemblyai-tts-1 (launch model; assemblyai-tts-mul-4brem-2026-10-17 underneath)",
     "source": "Harnoor's 29.3 s edit of the voice actor's witch reel (therapista 30.wav), cloned Oct 20 2026 with consent attested",
     "expires": "2026-12-19 (60-day retention)",
-    "use": "wss://tts.use1.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
+    "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
   },
   "therapista_v1_reel_cut": {
     "voice_id": "01a15b40-31ec-72a5-9a53-5dcc9e3a2f5f",
-    "model": "assemblyai-tts-mul-4brem-2026-10-17",
+    "model": "assemblyai-tts-1 (launch model; assemblyai-tts-mul-4brem-2026-10-17 underneath)",
     "source": "30 s of a voice actor's witch reel (33.0-62.95 s), cloned Oct 20 2026 with consent attested by Harnoor",
-    "use": "wss://tts.use1.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english",
+    "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english",
     "note": "superseded by therapista; renamed 'Therapista (v1, reel cut)' in the API"
   }
 }

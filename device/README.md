@@ -68,7 +68,7 @@ Jack is published to the aai studio (`npx aai login` once, then `npm run publish
 Deployed, the guest book lives in the agent's memory for as long as its sandbox runs (usually all night); a redeploy or restart clears it.
 
 ## Jack's voice
-Jack speaks through the newer streaming TTS cluster: `assemblyAITts({ voice: "george", host: "streaming-tts.use1.assemblyai.com" })` in `agent/agent.ts`. On Oct 20 it reported model `assemblyai-tts-mul-4brem-2026-10-17` (a `model` parameter is ignored: the cluster serves its current checkpoint) and first audio in ~340 ms.
+Jack speaks through `tts.us.assemblyai.com` with `model_id=assemblyai-tts-1`, the model we launch with (`assemblyai-tts-mul-4brem-2026-10-17` underneath, minor updates possible). In `agent/agent.ts` the voice and model ride in the `host` option (`tts.us.assemblyai.com/v1/ws?voice=george&model_id=assemblyai-tts-1&language=english&_`): the SDK appends its own `?voice=…` after the host, which the trailing `&_` swallows.
 
 ## Set the board's Wi-Fi from your phone
 

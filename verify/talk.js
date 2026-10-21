@@ -32,7 +32,9 @@ function resample(pcm, from, to) {
 
 async function stream(send, pcm, rate) {
   const chunk = (rate / 50) * 2; // 20 ms
-  const audio = Buffer.concat([pcm, Buffer.alloc(rate * 2 * 2)]); // + 2 s of silence ends the turn
+  // + 3.5 s of silence ends the turn. A live mic keeps streaming silence; a test that stops
+  // early leaves agents whose max turn silence is over 2 s (Therapista: 2.2 s) waiting forever.
+  const audio = Buffer.concat([pcm, Buffer.alloc(Math.round(rate * 3.5) * 2)]);
   for (let i = 0; i < audio.length; i += chunk) {
     send(audio.subarray(i, i + chunk));
     await sleep(20);
