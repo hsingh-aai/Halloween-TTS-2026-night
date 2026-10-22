@@ -96,8 +96,8 @@
 
 <script>
 const CHARACTERS = {
-  therapista: { name: "Therapista", face: "🔮", station: "The witch's crystal ball", bio: "A licensed (she says) witch-therapist. Tell her your name and what you do, then ask for a fortune.", talk: "Sit with Therapista", sfx: ["sounds/cackle-1.mp3", "sounds/cackle-2.mp3"], sfxEvent: "cackle", sfxAfterGreeting: true },
-  crypt: { name: "Crypt", face: "🗝️", station: "The Eternal Vault", bio: "Keeper of the vault. He'll verify you, then ask for your card number. Any number you say is redacted.", talk: "Enter the vault", sfx: ["sounds/scary.mp3"], sfxEvent: "scary_sound", sfxAfterGreeting: true, redact: true },
+  therapista: { name: "Therapista", face: "🔮", station: "The witch's crystal ball", bio: "A licensed (she says) witch-therapist. Tell her your name and what you do, then ask for a fortune.", talk: "Sit with Therapista", sfx: ["/api/sound?n=cackle-1", "/api/sound?n=cackle-2"], sfxEvent: "cackle", sfxAfterGreeting: true },
+  crypt: { name: "Crypt", face: "🗝️", station: "The Eternal Vault", bio: "Keeper of the vault. He'll verify you, then ask for your card number. Any number you say is redacted.", talk: "Enter the vault", sfx: ["/api/sound?n=scary"], sfxEvent: "scary_sound", sfxAfterGreeting: true, redact: true },
   jack: { name: "Jack the Roaster", face: "🎃", station: "The pumpkin patch stage", bio: "Three hundred years of comedy. Tell him your name for a rhyme, and your job for a roast.", talk: "Step on stage", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
 };
 const $ = (id) => document.getElementById(id);
@@ -224,7 +224,11 @@ async function start() {
     const src = ctx.createMediaStreamSource(stream);
     const node = new AudioWorkletNode(ctx, "mic");
     src.connect(node);
-    s.mic = { src, node };
+    // Through a muted gain to the speakers: some browsers never run a worklet nothing pulls on.
+    const sink = ctx.createGain();
+    sink.gain.value = 0;
+    node.connect(sink).connect(ctx.destination);
+    s.mic = { src, node, sink };
     const ratio = () => ctx.sampleRate / s.micRate;
     node.port.onmessage = (e) => {
       if (!s.ready || ws.readyState !== 1) return;
@@ -291,7 +295,7 @@ function stop() {
   if (s) {
     try { s.ws.close(); } catch {}
     s.stream?.getTracks().forEach((t) => t.stop());
-    try { s.mic?.src.disconnect(); s.mic?.node.disconnect(); } catch {}
+    try { s.mic?.src.disconnect(); s.mic?.node.disconnect(); s.mic?.sink.disconnect(); } catch {}
   }
   flush();
   sfxQueue = 0;
