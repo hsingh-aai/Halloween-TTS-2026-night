@@ -1,0 +1,112 @@
+{"framework":"aai","round":0,"utt":0,"latency_ms":2276.9}
+{"framework":"aai","round":0,"utt":1,"latency_ms":2221.9}
+{"framework":"aai","round":0,"utt":2,"latency_ms":2275.1}
+{"framework":"aai","round":0,"utt":3,"latency_ms":2108.5}
+{"framework":"aai","round":0,"utt":4,"latency_ms":2276.6}
+{"framework":"aai","round":0,"utt":5,"latency_ms":2217.8}
+{"framework":"aai","round":0,"utt":6,"latency_ms":2167.5}
+{"framework":"aai","round":0,"utt":7,"latency_ms":2070}
+{"framework": "livekit-default", "round": 0, "utt": 0, "latency_ms": 2794.4}
+{"framework": "livekit-default", "round": 0, "utt": 1, "latency_ms": 3904.5}
+{"framework": "livekit-default", "round": 0, "utt": 2, "latency_ms": 2665.1}
+{"framework": "livekit-default", "round": 0, "utt": 3, "latency_ms": 2794.7}
+{"framework": "livekit-default", "round": 0, "utt": 4, "latency_ms": 2873.9}
+{"framework": "livekit-default", "round": 0, "utt": 5, "latency_ms": 2985.1}
+{"framework": "livekit-default", "round": 0, "utt": 6, "latency_ms": 2694.6}
+{"framework": "livekit-default", "round": 0, "utt": 7, "latency_ms": 2774.6}
+{"framework":"aai","round":1,"utt":0,"latency_ms":2318.8}
+{"framework":"aai","round":1,"utt":1,"latency_ms":2006.3}
+{"framework":"aai","round":1,"utt":2,"latency_ms":2436.7}
+{"framework":"aai","round":1,"utt":3,"latency_ms":2115.2}
+{"framework":"aai","round":1,"utt":4,"latency_ms":2514}
+{"framework":"aai","round":1,"utt":5,"latency_ms":2015.4}
+{"framework":"aai","round":1,"utt":6,"latency_ms":2029.9}
+{"framework":"aai","round":1,"utt":7,"latency_ms":2128.1}
+{"framework": "livekit-default", "round": 1, "utt": 0, "latency_ms": 3092.1}
+{"framework": "livekit-default", "round": 1, "utt": 1, "latency_ms": 2572.7}
+{"framework": "livekit-default", "round": 1, "utt": 2, "latency_ms": 2692.5}
+{"framework": "livekit-default", "round": 1, "utt": 3, "latency_ms": 2632.9}
+{"framework": "livekit-default", "round": 1, "utt": 4, "latency_ms": 2702.5}
+{"framework": "livekit-default", "round": 1, "utt": 5, "latency_ms": 2942.5}
+{"framework": "livekit-default", "round": 1, "utt": 6, "latency_ms": 2721.7}
+{"framework": "livekit-default", "round": 1, "utt": 7, "latency_ms": 2782.5}
+{"framework":"aai","round":2,"utt":0,"latency_ms":2235.4}
+{"framework":"aai","round":2,"utt":1,"latency_ms":2205.3}
+{"framework":"aai","round":2,"utt":2,"latency_ms":2275.7}
+{"framework":"aai","round":2,"utt":3,"latency_ms":2618.5}
+{"framework":"aai","round":2,"utt":4,"latency_ms":2114.8}
+{"framework":"aai","round":2,"utt":5,"latency_ms":2550.7}
+{"framework":"aai","round":2,"utt":6,"latency_ms":2134.3}
+{"framework":"aai","round":2,"utt":7,"latency_ms":2288.6}
+{"framework": "livekit-default", "round": 2, "utt": 0, "latency_ms": 2810.6}
+{"framework": "livekit-default", "round": 2, "utt": 1, "latency_ms": 2650.3}
+{"framework": "livekit-default", "round": 2, "utt": 2, "latency_ms": 2719.2}
+{"framework": "livekit-default", "round": 2, "utt": 3, "latency_ms": 2910.3}
+{"framework": "livekit-default", "round": 2, "utt": 4, "latency_ms": 3030.1}
+{"framework": "livekit-default", "round": 2, "utt": 5, "latency_ms": 2720.7}
+{"framework": "livekit-default", "round": 2, "utt": 6, "latency_ms": 2719.8}
+{"framework": "livekit-default", "round": 2, "utt": 7, "latency_ms": 2850.2}
+{"framework":"aai","round":3,"utt":0,"latency_ms":2177.8}
+{"framework":"aai","round":3,"utt":1,"latency_ms":2354.5}
+{"framework":"aai","round":3,"utt":2,"latency_ms":2163.2}
+{"framework":"aai","round":3,"utt":3,"latency_ms":2141.1}
+{"framework":"aai","round":3,"utt":4,"latency_ms":2267.9}
+{"framework":"aai","round":3,"utt":5,"latency_ms":2104.8}
+{"framework":"aai","round":3,"utt":6,"latency_ms":2193.3}
+{"framework":"aai","round":3,"utt":7,"latency_ms":2246.1}
+{"framework": "livekit-default", "round": 3, "utt": 0, "latency_ms": 2751.5}
+{"framework": "livekit-default", "round": 3, "utt": 1, "latency_ms": 2640.9}
+{"framework": "livekit-default", "round": 3, "utt": 2, "latency_ms": 2783.3}
+{"framework": "livekit-default", "round": 3, "utt": 3, "latency_ms": 2872.6}
+{"framework": "livekit-default", "round": 3, "utt": 4, "latency_ms": 2762.0}
+{"framework": "livekit-default", "round": 3, "utt": 5, "latency_ms": 2830.9}
+{"framework": "livekit-default", "round": 3, "utt": 6, "latency_ms": 2641.5}
+{"framework": "livekit-default", "round": 3, "utt": 7, "latency_ms": 2622.0}
+{"framework":"aai","round":4,"utt":0,"latency_ms":1967.8}
+{"framework":"aai","round":4,"utt":1,"latency_ms":2541}
+{"framework":"aai","round":4,"utt":2,"latency_ms":2184.7}
+{"framework":"aai","round":4,"utt":3,"latency_ms":2301.4}
+{"framework":"aai","round":4,"utt":4,"latency_ms":2507.6}
+{"framework":"aai","round":4,"utt":5,"latency_ms":2059.2}
+{"framework":"aai","round":4,"utt":6,"latency_ms":2032.9}
+{"framework":"aai","round":4,"utt":7,"latency_ms":2255.2}
+{"framework": "livekit-tuned", "round": 4, "utt": 0, "latency_ms": 2700.9}
+{"framework": "livekit-tuned", "round": 4, "utt": 1, "latency_ms": 2681.6}
+{"framework": "livekit-tuned", "round": 4, "utt": 2, "latency_ms": 2760.9}
+{"framework": "livekit-tuned", "round": 4, "utt": 3, "latency_ms": 2820.5}
+{"framework": "livekit-tuned", "round": 4, "utt": 4, "latency_ms": 2500.1}
+{"framework": "livekit-tuned", "round": 4, "utt": 5, "latency_ms": 2569.5}
+{"framework": "livekit-tuned", "round": 4, "utt": 6, "latency_ms": 2650.6}
+{"framework": "livekit-tuned", "round": 4, "utt": 7, "latency_ms": 2460.3}
+{"framework":"aai","round":5,"utt":0,"latency_ms":2502.2}
+{"framework":"aai","round":5,"utt":1,"latency_ms":2067.7}
+{"framework":"aai","round":5,"utt":2,"latency_ms":2324.2}
+{"framework":"aai","round":5,"utt":3,"latency_ms":2055.6}
+{"framework":"aai","round":5,"utt":4,"latency_ms":2168.4}
+{"framework":"aai","round":5,"utt":5,"latency_ms":2010.6}
+{"framework":"aai","round":5,"utt":6,"latency_ms":2298.8}
+{"framework":"aai","round":5,"utt":7,"latency_ms":2288.6}
+{"framework": "livekit-tuned", "round": 5, "utt": 0, "latency_ms": 2735.5}
+{"framework": "livekit-tuned", "round": 5, "utt": 1, "latency_ms": 2683.8}
+{"framework": "livekit-tuned", "round": 5, "utt": 2, "latency_ms": 2864.1}
+{"framework": "livekit-tuned", "round": 5, "utt": 3, "latency_ms": 2714.2}
+{"framework": "livekit-tuned", "round": 5, "utt": 4, "latency_ms": 2594.7}
+{"framework": "livekit-tuned", "round": 5, "utt": 5, "latency_ms": 2604.3}
+{"framework": "livekit-tuned", "round": 5, "utt": 6, "latency_ms": 2684.8}
+{"framework": "livekit-tuned", "round": 5, "utt": 7, "latency_ms": 2633.4}
+{"framework":"aai","round":6,"utt":0,"latency_ms":2355}
+{"framework":"aai","round":6,"utt":1,"latency_ms":2186.7}
+{"framework":"aai","round":6,"utt":2,"latency_ms":2305.3}
+{"framework":"aai","round":6,"utt":3,"latency_ms":2119.5}
+{"framework":"aai","round":6,"utt":4,"latency_ms":2199}
+{"framework":"aai","round":6,"utt":5,"latency_ms":2025.3}
+{"framework":"aai","round":6,"utt":6,"latency_ms":2398}
+{"framework":"aai","round":6,"utt":7,"latency_ms":2130.8}
+{"framework": "livekit-tuned", "round": 6, "utt": 0, "latency_ms": 2581.2}
+{"framework": "livekit-tuned", "round": 6, "utt": 1, "latency_ms": 2660.6}
+{"framework": "livekit-tuned", "round": 6, "utt": 2, "latency_ms": 2792.2}
+{"framework": "livekit-tuned", "round": 6, "utt": 3, "latency_ms": 2701.3}
+{"framework": "livekit-tuned", "round": 6, "utt": 4, "latency_ms": 2701.5}
+{"framework": "livekit-tuned", "round": 6, "utt": 5, "latency_ms": 2701.8}
+{"framework": "livekit-tuned", "round": 6, "utt": 6, "latency_ms": 3851.1}
+{"framework": "livekit-tuned", "round": 6, "utt": 7, "latency_ms": 2541.7}

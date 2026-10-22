@@ -16,10 +16,10 @@ export default agent({
   greeting: "",
   // tts.us + model_id assemblyai-tts-1 = the launch model (assemblyai-tts-mul-4brem-2026-10-17
   // underneath). The SDK appends its own "?voice=…" after the host, which our trailing "&_"
-  // swallows, so the voice must ride in the host too or it falls back to jane.
+  // swallows, so the voice must ride in the host too (as voice_id: tts.us retired `voice=`).
   tts: assemblyAITts({
     voice: "george",
-    host: "tts.us.assemblyai.com/v1/ws?voice=george&model_id=assemblyai-tts-1&language=english&_",
+    host: "tts.us.assemblyai.com/v1/ws?voice_id=aai-george&model_id=assemblyai-tts-1&language=english&_",
   }),
   // The board's AFE already does echo cancellation and beamforming, and party guests
   // stand back from it, so near-field voice focus would cut them out.

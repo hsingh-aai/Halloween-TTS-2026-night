@@ -1,0 +1,6 @@
+livekit/.venv/
+livekit/vendor/
+livekit/__pycache__/
+aai-agent/node_modules/
+aai-agent/.aai/
+utterances/*.pcm

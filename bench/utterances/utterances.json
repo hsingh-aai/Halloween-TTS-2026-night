@@ -1,0 +1,42 @@
+[
+  {
+    "file": "00.pcm",
+    "text": "What's a good Halloween costume for a software engineer?",
+    "seconds": 2.59
+  },
+  {
+    "file": "01.pcm",
+    "text": "Tell me a quick fun fact about pumpkins.",
+    "seconds": 2.17
+  },
+  {
+    "file": "02.pcm",
+    "text": "What candy should I hand out this year?",
+    "seconds": 1.69
+  },
+  {
+    "file": "03.pcm",
+    "text": "Give me a spooky movie to watch tonight.",
+    "seconds": 2.12
+  },
+  {
+    "file": "04.pcm",
+    "text": "How do I carve a pumpkin without making a mess?",
+    "seconds": 2.9
+  },
+  {
+    "file": "05.pcm",
+    "text": "What's the best way to throw a small Halloween party?",
+    "seconds": 2.6
+  },
+  {
+    "file": "06.pcm",
+    "text": "Suggest a name for a black cat.",
+    "seconds": 1.64
+  },
+  {
+    "file": "07.pcm",
+    "text": "What's a fun Halloween snack I can make in ten minutes?",
+    "seconds": 2.8
+  }
+]
