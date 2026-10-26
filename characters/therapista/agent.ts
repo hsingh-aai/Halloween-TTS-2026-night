@@ -11,9 +11,8 @@ const THERAPISTA_VOICE_ID = process.env.THERAPISTA_VOICE_ID ?? "01a15b4b-77b1-73
 export default agent({
   name: "Therapista",
   description: "Witch-therapist with a crystal ball, Text-to-Screech Halloween happy hour",
-  // Silent start for the board: its chime says "I'm listening", and a greeting played while
-  // the mic is muted would swallow the guest's first words (same as Jack).
-  greeting: "",
+  // Open with a question so the guest never has to start the reading.
+  greeting: "Ooh, sit, sit, the crystal ball's been waiting for you all night… what's your name, sugar?",
   tts: assemblyAITts({
     voice: "vera",
     host: `tts.us.assemblyai.com/v1/ws?voice_id=${THERAPISTA_VOICE_ID}&model_id=assemblyai-tts-1&language=english&_`,
@@ -22,7 +21,9 @@ export default agent({
   builtinTools: [],
   // No generic "I'm checking on this." filler in her cloned voice: it broke character when a
   // cackle tool call delayed a reply. She speaks first and cackles after (system prompt).
-  silence: { deadAirCoverMs: 0 },
+  // If the guest goes quiet, take the turn back in character with the next question
+  // (the SDK stops after 3 unanswered nudges).
+  silence: { deadAirCoverMs: 0, nudge: { afterMs: 8000, prompt: "The guest has gone quiet. As Therapista, in one short witchy line, tease the silence (the spirits noticed) and ask them the next specific question from your reading. Never repeat a question they already answered. If your last question went unanswered, don't repeat it: ask a different, easier one. If they've stayed silent twice in a row, give your warm send-off instead." } },
   maxSteps: 2,
   sessionContext: () => {
     const today = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", weekday: "long", month: "long", day: "numeric" }).format(new Date());

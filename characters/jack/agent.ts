@@ -22,6 +22,8 @@ export default agent({
   builtinTools: [],
   maxSteps: 3,
   // No generic "I'm checking on this." filler in his cloned voice.
-  silence: { deadAirCoverMs: 0 },
+  // If the guest goes quiet, take the turn back in character with the next question
+  // (the SDK stops after 3 unanswered nudges).
+  silence: { deadAirCoverMs: 0, nudge: { afterMs: 8000, prompt: "The guest has gone quiet. As Jack, roast the silence in one quick line, then ask them the next specific question from your set. Never repeat a question they already answered. If your last question went unanswered, don't repeat it: ask a different, easier one. If they've stayed silent twice in a row, give your warm send-off instead." } },
   sessionContext: () => guestBookContext(),
 });
