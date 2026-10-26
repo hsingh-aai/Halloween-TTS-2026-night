@@ -36,5 +36,13 @@
     "source": "Oogie Boogie's Song - Singing Pumpkins Effect Animation.mp3: 29.5 s of demucs-isolated vocals from 28-98 s, cloned Oct 26 2026 with consent attested by Harnoor",
     "expires": "2026-12-25 (60-day retention)",
     "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
+  },
+  "jack3": {
+    "voice_id": "01a17a86-bb8e-7ae3-8047-9dde85278d49",
+    "name in API": "Jack the Roaster 3.0",
+    "model": "assemblyai-tts-1",
+    "source": "jack 3.wav (first 30 s of a 35.5 s FCP export, mono), cloned Oct 26 2026 with consent attested by Harnoor",
+    "expires": "2026-12-25 (60-day retention)",
+    "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
   }
 }
