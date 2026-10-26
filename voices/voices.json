@@ -28,5 +28,13 @@
     "source": "Voice Acting - Southern Gentleman.mp3 (17 s), cloned Oct 21 2026 with consent attested by Harnoor",
     "expires": "2026-12-20 (60-day retention)",
     "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
+  },
+  "jack2": {
+    "voice_id": "01a17a78-a590-7e42-9811-1d3d73e833d2",
+    "name in API": "Jack the Roaster 2.0",
+    "model": "assemblyai-tts-1",
+    "source": "Oogie Boogie's Song - Singing Pumpkins Effect Animation.mp3: 29.5 s of demucs-isolated vocals from 28-98 s, cloned Oct 26 2026 with consent attested by Harnoor",
+    "expires": "2026-12-25 (60-day retention)",
+    "use": "wss://tts.us.assemblyai.com/v1/ws?voice_id=<voice_id>&model_id=assemblyai-tts-1&sample_rate=24000&language=english"
   }
 }
