@@ -103,8 +103,8 @@ const CHARACTERS = {
   therapista: { name: "Therapista", face: "🔮", station: "The witch's crystal ball", bio: "A licensed (she says) witch-therapist. Tell her your name and what you do, then ask for a fortune.", talk: "Sit with Therapista", sfx: ["/api/sound?n=cackle-1", "/api/sound?n=cackle-2"], sfxEvent: "cackle", sfxAfterGreeting: true },
   crypt: { name: "Crypt", face: "🗝️", station: "The Eternal Vault", bio: "Keeper of the vault. He'll verify you, then ask for your card number. Any number you say is redacted.", talk: "Enter the vault", sfx: ["/api/sound?n=scary"], sfxEvent: "scary_sound", sfxOn: /curses|spirits concur|verified/i, sfxAfterGreeting: true, redact: true },
   jack: { name: "Jack the Roaster", face: "🎃", station: "The pumpkin patch stage", bio: "Three hundred years of comedy. Tell him your name for a rhyme, and your job for a roast.", talk: "Step on stage", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
-  jack2: { name: "Jack the Roaster 2.0", tag: "Testing", face: "🎃", station: "The pumpkin patch, test stage", bio: "Jack in a brand-new voice we're trying out. Same rhymes, same roasts. Tell him your name and your job.", talk: "Try the new Jack", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
-  jack3: { name: "Jack the Roaster 3.0", tag: "Testing", face: "🎃", station: "The pumpkin patch, test stage", bio: "Jack in another new voice we're trying out. Same rhymes, same roasts. Tell him your name and your job.", talk: "Try Jack 3.0", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
+  jack2: { name: "Jack the Roaster 2.0", tag: "Testing", face: "🎃", spooky: { rate: 0.87, echo: 0.11 }, station: "The pumpkin patch, test stage", bio: "Jack in a brand-new voice we're trying out. Same rhymes, same roasts. Tell him your name and your job.", talk: "Try the new Jack", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
+  jack3: { name: "Jack the Roaster 3.0", tag: "Testing", face: "🎃", spooky: { rate: 0.9, echo: 0.09 }, station: "The pumpkin patch, test stage", bio: "Jack in another new voice we're trying out. Same rhymes, same roasts. Tell him your name and your job.", talk: "Try Jack 3.0", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
 };
 const $ = (id) => document.getElementById(id);
 let current = "therapista";
@@ -153,7 +153,21 @@ function line(who, text, el) {
 
 // ---------- audio ----------
 const WORKLET = `class Mic extends AudioWorkletProcessor { process(i) { const ch = i[0][0]; if (ch) this.port.postMessage(ch.slice(0)); return true; } } registerProcessor("mic", Mic);`;
-let ctx, analyser, playhead = 0, sources = [], level = 0, raf;
+let ctx, analyser, voiceIn, playhead = 0, sources = [], level = 0, raf;
+// The cloned voices read every line in a neutral delivery, so a character can ask for a spooky
+// one here: played a little slow (deeper and more drawn out), warmer, with a crypt echo.
+function voiceChain(spooky) {
+  if (!spooky) return analyser;
+  const warm = ctx.createBiquadFilter(); warm.type = "lowshelf"; warm.frequency.value = 220; warm.gain.value = 5;
+  const dark = ctx.createBiquadFilter(); dark.type = "lowpass"; dark.frequency.value = 6000;
+  const delay = ctx.createDelay(1); delay.delayTime.value = spooky.echo;
+  const feedback = ctx.createGain(); feedback.gain.value = 0.35;
+  const wet = ctx.createGain(); wet.gain.value = 0.3;
+  warm.connect(dark).connect(analyser);
+  dark.connect(delay).connect(feedback).connect(delay);
+  delay.connect(wet).connect(analyser);
+  return warm;
+}
 function playPcm(buf, rate) {
   const pcm = new Int16Array(buf);
   if (!pcm.length) return;
@@ -163,10 +177,12 @@ function playPcm(buf, rate) {
   ab.getChannelData(0).set(f);
   const src = ctx.createBufferSource();
   src.buffer = ab;
-  src.connect(analyser);
+  const speed = CHARACTERS[current].spooky?.rate ?? 1;
+  src.playbackRate.value = speed;
+  src.connect(voiceIn);
   playhead = Math.max(playhead, ctx.currentTime + 0.03);
   src.start(playhead);
-  playhead += ab.duration;
+  playhead += ab.duration / speed;
   sources.push(src);
   src.onended = () => { sources = sources.filter((s) => s !== src); };
 }
@@ -223,6 +239,7 @@ async function start() {
     ctx ??= new AudioContext();
     await ctx.resume();
     if (!analyser) { analyser = ctx.createAnalyser(); analyser.fftSize = 512; analyser.connect(ctx.destination); }
+    voiceIn = voiceChain(CHARACTERS[who].spooky);
     const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
     await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: "text/javascript" }))).catch(() => {});
     const t = await fetch(`/api/ticket?c=${who}`, { cache: "no-store" }).then((r) => r.json());
