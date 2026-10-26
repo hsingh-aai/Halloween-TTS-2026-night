@@ -13,7 +13,7 @@ const JACK_VOICE_ID = process.env.JACK_VOICE_ID ?? "01a16010-f38d-736b-b9c8-cc4c
 export default agent({
   name: "Jack the Roaster",
   description: "Pumpkin-headed comedian for the Text-to-Screech Halloween happy hour (cloned voice)",
-  greeting: "Well, well, well, a live one! I'm Jack. Tell me your name, I've got a rhyme ready.",
+  greeting: "Well, well, well, a live one! I'm Jack, and I've got a rhyme ready… what's your name?",
   tts: assemblyAITts({
     voice: "george",
     host: `tts.us.assemblyai.com/v1/ws?voice_id=${JACK_VOICE_ID}&model_id=assemblyai-tts-1&language=english&_`,
