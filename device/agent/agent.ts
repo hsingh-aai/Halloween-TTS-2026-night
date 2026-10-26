@@ -27,7 +27,7 @@ export default agent({
   // longer one is still tolerated mid-sentence.
   stt: assemblyAIStt({ voiceFocus: "off", minTurnSilenceMs: 700, maxTurnSilenceMs: 2400 }),
   // Bias transcription toward names guests say that the model would otherwise mishear.
-  sttPrompt: "Names that may come up: Harnoor.",
+  sttPrompt: "Names that may come up: Harnoor. Guests often say: rhyme my name, roast my job, roast my coffee order, introduce me like I'm your next guest, I bet you can't make me laugh.",
   builtinTools: [],
   maxSteps: 3,
   sessionContext: () => guestBookContext(),

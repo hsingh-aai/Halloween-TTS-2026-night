@@ -12,8 +12,8 @@ import { assemblyAITts } from "@alexkroman1/aai/tts";
 const CRYPT_VOICE_ID = process.env.CRYPT_VOICE_ID ?? "01a15fa1-0214-7617-ac85-611182c5925f";
 
 export default agent({
-  name: "Crypt",
-  description: "Crypt, Keeper of the Eternal Vault: trustworthy voice, live redaction (Text-to-Screech)",
+  name: "The Crypt Keeper",
+  description: "The Crypt Keeper, Keeper of the Eternal Vault: trustworthy voice, live redaction (Text-to-Screech)",
   greeting: "Welcome… to the Eternal Vault. Come in, don't be afraid. First, I must verify your identity… what was the name of your first haunted pet?",
   tts: assemblyAITts({
     voice: "george",

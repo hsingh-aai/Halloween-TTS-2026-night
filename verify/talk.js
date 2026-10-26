@@ -97,11 +97,12 @@ async function sessionSocketUrl(baseUrl, client) {
   return `${sessionUrl}?resume=1&client=${client}&token=${encodeURIComponent(sessionToken)}`;
 }
 
-export async function device(baseUrl, lines, client = "verify") {
+export async function device(baseUrl, lines, client = "verify", { greeting = false } = {}) {
   const audio = await Promise.all(lines.map((t) => speak(t, GUEST_VOICE)));
   const ws = new WebSocket(await sessionSocketUrl(baseUrl, client)); // resume=1: no spoken greeting, like the board
   ws.binaryType = "arraybuffer";
   const c = collector();
+  const events = []; // custom events the agent sent this turn (cackle, scary_sound, …)
   let micRate = 16000;
   const configured = new Promise((r) => {
     ws.addEventListener("message", (ev) => {
@@ -113,6 +114,7 @@ export async function device(baseUrl, lines, client = "verify") {
         r();
       }
       if ((m.type === "agentTranscript.committed" || m.type === "agent-transcript.committed") && m.text) c.push(m.text);
+      if (m.type === "custom.emitted" && m.event) events.push(m.event);
     });
   });
   const refused = new Promise((_, j) => {
@@ -127,10 +129,15 @@ export async function device(baseUrl, lines, client = "verify") {
   await new Promise((r, j) => { ws.addEventListener("open", r); ws.addEventListener("error", () => j(new Error("could not open the session socket"))); });
   await Promise.race([configured, refused]);
   const transcript = [];
+  if (greeting) {
+    const g = await c.next(8000); // a studio avatar speaks first; keep it out of the first answer
+    if (g) transcript.push({ role: "greeting", text: g });
+  }
   for (let i = 0; i < lines.length; i++) {
     transcript.push({ role: "guest", text: lines[i] });
+    events.length = 0;
     await stream((b) => ws.send(b), resample(audio[i], TTS_RATE, micRate), micRate);
-    transcript.push({ role: "agent", text: await c.next() });
+    transcript.push({ role: "agent", text: await c.next(), events: [...events] });
   }
   ws.close();
   await sleep(300);

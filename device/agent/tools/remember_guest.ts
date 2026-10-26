@@ -16,6 +16,8 @@ export default tool({
   }),
   async execute({ name, job, joke, new_visit }) {
     const g = await updateGuest(name, { job, joke, visit: new_visit });
-    return { saved: g.name, visits: g.visits };
+    // Said so the model doesn't speak a SECOND reply after this returns (guests heard Jack
+    // answer twice: once before the call, once after it).
+    return { saved: g.name, visits: g.visits, note: "Saved silently. If you already spoke your reply this turn, say nothing more." };
   },
 });
