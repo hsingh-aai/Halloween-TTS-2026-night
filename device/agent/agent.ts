@@ -26,6 +26,8 @@ export default agent({
   // A short pause ends a guest's turn (the default 1.6 s drags at a party), while a
   // longer one is still tolerated mid-sentence.
   stt: assemblyAIStt({ voiceFocus: "off", minTurnSilenceMs: 700, maxTurnSilenceMs: 2400 }),
+  // Bias transcription toward names guests say that the model would otherwise mishear.
+  sttPrompt: "Names that may come up: Harnoor.",
   builtinTools: [],
   maxSteps: 3,
   sessionContext: () => guestBookContext(),

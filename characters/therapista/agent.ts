@@ -18,6 +18,8 @@ export default agent({
     host: `tts.us.assemblyai.com/v1/ws?voice_id=${THERAPISTA_VOICE_ID}&model_id=assemblyai-tts-1&language=english&_`,
   }),
   stt: assemblyAIStt({ minTurnSilenceMs: 650, maxTurnSilenceMs: 2200 }),
+  // Bias transcription toward names guests say that the model would otherwise mishear.
+  sttPrompt: "Names that may come up: Harnoor.",
   builtinTools: [],
   // No generic "I'm checking on this." filler in her cloned voice: it broke character when a
   // cackle tool call delayed a reply. She speaks first and cackles after (system prompt).

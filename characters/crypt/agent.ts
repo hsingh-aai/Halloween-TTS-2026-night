@@ -20,6 +20,8 @@ export default agent({
     host: `tts.us.assemblyai.com/v1/ws?voice_id=${CRYPT_VOICE_ID}&model_id=assemblyai-tts-1&language=english&_`,
   }),
   stt: assemblyAIStt({ minTurnSilenceMs: 700, maxTurnSilenceMs: 2400 }),
+  // Bias transcription toward names guests say that the model would otherwise mishear.
+  sttPrompt: "Names that may come up: Harnoor.",
   builtinTools: [],
   maxSteps: 2,
   // No generic "I'm checking on this." filler in his cloned voice.
