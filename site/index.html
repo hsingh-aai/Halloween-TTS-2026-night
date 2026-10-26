@@ -97,7 +97,7 @@
 <script>
 const CHARACTERS = {
   therapista: { name: "Therapista", face: "🔮", station: "The witch's crystal ball", bio: "A licensed (she says) witch-therapist. Tell her your name and what you do, then ask for a fortune.", talk: "Sit with Therapista", sfx: ["/api/sound?n=cackle-1", "/api/sound?n=cackle-2"], sfxEvent: "cackle", sfxAfterGreeting: true },
-  crypt: { name: "Crypt", face: "🗝️", station: "The Eternal Vault", bio: "Keeper of the vault. He'll verify you, then ask for your card number. Any number you say is redacted.", talk: "Enter the vault", sfx: ["/api/sound?n=scary"], sfxEvent: "scary_sound", sfxAfterGreeting: true, redact: true },
+  crypt: { name: "Crypt", face: "🗝️", station: "The Eternal Vault", bio: "Keeper of the vault. He'll verify you, then ask for your card number. Any number you say is redacted.", talk: "Enter the vault", sfx: ["/api/sound?n=scary"], sfxEvent: "scary_sound", sfxOn: /curses|spirits concur|verified/i, sfxAfterGreeting: true, redact: true },
   jack: { name: "Jack the Roaster", face: "🎃", station: "The pumpkin patch stage", bio: "Three hundred years of comedy. Tell him your name for a rhyme, and your job for a roast.", talk: "Step on stage", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
 };
 const $ = (id) => document.getElementById(id);
@@ -182,7 +182,15 @@ function meter() {
 }
 
 // Sound effects: played after the character finishes the line, mic muted meanwhile.
-let sfxQueue = 0, sfxPlaying = false, sfxNext = 0, spokeOnce = false;
+let sfxQueue = 0, sfxPlaying = false, sfxNext = 0, spokeOnce = false, sfxQueuedAt = 0;
+// One sound per line: the tool call and the line's trigger words (sfxOn) can both ask for it,
+// so a sound queued in the last few seconds covers the other. The trigger words make it
+// reliable even when the model forgets the tool.
+function queueSfx() {
+  if (Date.now() - sfxQueuedAt < 6000) return;
+  sfxQueuedAt = Date.now();
+  sfxQueue++;
+}
 function trySfx() {
   const c = CHARACTERS[current];
   if (!session || sfxPlaying || !sfxQueue || speaking() || !c.sfx.length) return;
@@ -264,13 +272,14 @@ async function start() {
         case "agentTranscript.committed": case "agent-transcript.committed":
           if (m.text) line("char", m.text, pendingChar);
           pendingChar = null;
-          if (!spokeOnce) { spokeOnce = true; if (CHARACTERS[who].sfxAfterGreeting) sfxQueue++; }
+          if (!spokeOnce) { spokeOnce = true; if (CHARACTERS[who].sfxAfterGreeting) queueSfx(); }
+          else if (m.text && CHARACTERS[who].sfxOn?.test(m.text)) queueSfx();
           break;
         case "reply.cancelled":
           flush();
           break;
         case "custom.emitted":
-          if (m.event && m.event === CHARACTERS[who].sfxEvent) sfxQueue++;
+          if (m.event && m.event === CHARACTERS[who].sfxEvent) queueSfx();
           break;
         case "error.reported":
           if (m.fatal) { $("err").textContent = "The connection dropped. Tap talk to try again."; stop(); }
@@ -299,6 +308,7 @@ function stop() {
   }
   flush();
   sfxQueue = 0;
+  sfxQueuedAt = 0;
   setLive(false);
 }
 

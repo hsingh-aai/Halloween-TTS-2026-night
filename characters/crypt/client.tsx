@@ -29,7 +29,24 @@ function Vault() {
   const { state, messages, userTranscript, agentTranscript, started, start, end, setMicMuted } = useSession();
   const [pending, setPending] = useState(0);
   const [playing, setPlaying] = useState(false);
-  useEvent("scary_sound", () => setPending((n) => n + 1));
+  // One creak per line: his tool call and his trigger words can both ask for it, so a creak
+  // queued in the last few seconds covers the other. The words make it reliable even when
+  // the model forgets the tool.
+  const queuedAt = useRef(0);
+  const queue = () => {
+    if (Date.now() - queuedAt.current < 6000) return;
+    queuedAt.current = Date.now();
+    setPending((n) => n + 1);
+  };
+  useEvent("scary_sound", queue);
+  const heard = useRef(0);
+  useEffect(() => {
+    if (messages.length < heard.current) heard.current = 0; // a new session
+    for (const m of messages.slice(heard.current)) {
+      if (m.role === "assistant" && /curses|spirits concur|verified/i.test(m.content)) queue();
+    }
+    heard.current = messages.length;
+  }, [messages]);
 
   // The vault creaks open right after his greeting.
   const greeted = useRef(false);
@@ -38,7 +55,7 @@ function Vault() {
     if (state === "speaking") wasSpeaking.current = true;
     else if (wasSpeaking.current && !greeted.current) {
       greeted.current = true;
-      setPending((n) => n + 1);
+      queue();
     }
     if (state === "disconnected" || state === "ready") greeted.current = wasSpeaking.current = false;
   }, [state]);
