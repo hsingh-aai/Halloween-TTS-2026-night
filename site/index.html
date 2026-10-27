@@ -5,79 +5,126 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Text-to-Screech Voice Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-  /* Layout: one stage that becomes whichever character you pick (cast strip on top), the
-     talking orb in the middle, live transcript below. Each character repaints the tokens. */
+  /* AssemblyAI brand, dark: warm black, cream type, Cobolt as the only accent. Oceanic Text,
+     UN 11ST and Modern Gothic Mono load if installed; the Google fonts stand in otherwise.
+     Layout: one stage that becomes whichever character you pick (cast strip on top), their
+     station art in the middle reacting to their voice, prompts and the live transcript below. */
   :root {
-    --bg: #0e0c10; --surface: #19151c; --line: #2f2833; --fg: #f1e9e4; --muted: #a79aa5;
-    --accent: #ff9a3c; --glow: rgba(255, 154, 60, 0.45); --redact: #e5484d;
-    --display: "Pirata One", "Times New Roman", serif;
-    --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --bg: #1d1b16; --surface: #24221c; --line: #4a4945; --fg: #fdfcf8; --text: #d2d1d0; --muted: #a5a4a2; --label: #c7c3b2;
+    --accent: #887bdd; --accent-hover: #b0a7e9; --glow: rgba(57, 35, 199, 0.55); --redact: #f04438;
+    --display: "Oceanic Text", "Source Serif 4", Georgia, serif;
+    --body: "UN 11ST", system-ui, -apple-system, sans-serif;
+    --mono: "Modern Gothic Mono", "JetBrains Mono", ui-monospace, monospace;
     color-scheme: dark;
   }
-  body[data-char="therapista"] { --bg: #120d1a; --surface: #1c1528; --line: #33284a; --accent: #b48cff; --glow: rgba(180, 140, 255, 0.45); }
-  body[data-char="crypt"] { --bg: #0b100f; --surface: #121a18; --line: #24332f; --accent: #5fe0c6; --glow: rgba(95, 224, 198, 0.4); }
-  body[data-char="jack"] { --bg: #120c08; --surface: #1d140c; --line: #3a2a1b; --accent: #ff9a3c; --glow: rgba(255, 154, 60, 0.45); }
-  body[data-char="jack2"] { --bg: #0c120a; --surface: #151d11; --line: #2b3a22; --accent: #a6e05a; --glow: rgba(166, 224, 90, 0.4); }
-  body[data-char="jack3"] { --bg: #0d0b14; --surface: #171422; --line: #2f2944; --accent: #ff6ad5; --glow: rgba(255, 106, 213, 0.4); }
+  body[data-char^="jack"] { --glow: rgba(232, 121, 42, 0.5); }
   * { box-sizing: border-box; }
-  html, body { height: 100%; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 var(--body); transition: background 0.4s; }
-  .wrap { min-height: 100%; max-width: 760px; margin: 0 auto; display: grid; grid-template-rows: auto auto 1fr auto; gap: 18px;
+  html { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.3 var(--body); position: relative; min-height: 100%; overflow-x: clip; }
+  .web { position: absolute; top: 0; right: 0; width: min(300px, 46vw); pointer-events: none; }
+  .moon { position: absolute; top: 150px; left: max(0px, calc(50% - 560px)); width: 260px; pointer-events: none; }
+  @media (max-width: 900px) { .moon { display: none; } }
+  .wrap { position: relative; min-height: 100%; max-width: 820px; margin: 0 auto; display: grid; grid-template-rows: auto auto 1fr auto auto; gap: 24px;
     padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-top: max(18px, env(safe-area-inset-top, 0px)); padding-bottom: max(18px, env(safe-area-inset-bottom, 0px)); }
-  header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-  header .brand { font: 400 26px/1 var(--display); letter-spacing: 0.02em; }
-  header .when { font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    padding-top: max(24px, env(safe-area-inset-top, 0px)); padding-bottom: max(24px, env(safe-area-inset-bottom, 0px)); }
+  .eyebrow, .when, .tag, .status, .m .w, .asks h2, .redaction { font-family: var(--mono); font-weight: 400; text-transform: uppercase; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header .logo { width: 141px; height: 24px; color: var(--fg); display: block; }
+  header .when { font-size: 12px; letter-spacing: 1.2px; color: var(--label); }
 
   .cast { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-  @media (max-width: 620px) { .cast { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cast .pick:last-child:nth-child(odd) { grid-column: span 2; } }
-  .pick { background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 14px; padding: 10px 8px; cursor: pointer;
-    display: grid; justify-items: center; gap: 2px; font: inherit; transition: border-color 0.2s, transform 0.2s; }
-  .pick .face { font-size: 30px; line-height: 1; }
-  .pick .nm { font: 400 18px/1.1 var(--display); }
-  .pick .tag { font: 500 9px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
-  .pick[aria-pressed="true"] { border-color: var(--accent); transform: translateY(-2px); }
-  .pick:focus-visible, button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  @media (max-width: 680px) { .cast { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cast .pick:last-child:nth-child(odd) { grid-column: span 2; } }
+  .pick { background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 8px 12px; cursor: pointer;
+    display: grid; justify-items: center; align-content: start; gap: 4px; font: inherit; transition: border-color 0.2s, background 0.2s; }
+  .pick:hover { border-color: var(--muted); }
+  .pick img { width: 44px; height: 38px; object-fit: contain; }
+  .pick .nm { font: 400 18px/1.1 var(--display); letter-spacing: -0.4px; text-align: center; }
+  .pick .tag { font-size: 10px; letter-spacing: 1px; color: var(--accent); }
+  .pick[aria-pressed="true"] { border-color: var(--accent); background: var(--surface); }
+  .pick:focus-visible, button:focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 2px; }
 
-  .stage { display: grid; justify-items: center; align-content: start; gap: 14px; text-align: center; }
-  .stage .eyebrow { font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-  .stage h1 { margin: 0; font: 400 clamp(40px, 9vw, 64px)/1 var(--display); color: var(--accent); }
-  .stage .bio { margin: 0; color: var(--muted); max-width: 52ch; font-size: 15px; }
-  .orb { width: min(200px, 48vw); aspect-ratio: 1; max-width: 100%; border-radius: 50%; display: grid; place-items: center;
-    font-size: min(84px, 20vw); background: radial-gradient(circle at 40% 35%, var(--surface), var(--bg) 70%);
-    border: 1px solid var(--line); box-shadow: 0 0 calc(20px + var(--lvl, 0) * 90px) var(--glow), inset 0 0 40px var(--glow);
-    transform: scale(calc(1 + var(--lvl, 0) * 0.08)); transition: transform 0.08s linear, box-shadow 0.08s linear; }
-  .orb.sfx { animation: shake 0.4s infinite; }
+  .stage { display: grid; justify-items: center; align-content: start; gap: 16px; text-align: center; }
+  .stage .eyebrow { font-size: 12px; letter-spacing: 1.2px; color: var(--label); }
+  .stage h1 { margin: 0; font: 400 clamp(48px, 12vw, 96px)/0.9 var(--display); letter-spacing: -0.05em; color: var(--fg); text-wrap: balance; }
+  .stage .bio { margin: 0; color: var(--text); max-width: 34ch; font-size: clamp(18px, 3.4vw, 22px); }
+  .orb { width: min(300px, 70vw); aspect-ratio: 6 / 5; display: grid; place-items: center; }
+  .orb img { width: 100%; height: 100%; object-fit: contain;
+    filter: drop-shadow(0 0 calc(6px + var(--lvl, 0) * 40px) var(--glow));
+    transform: scale(calc(1 + var(--lvl, 0) * 0.06)); transition: transform 0.08s linear, filter 0.08s linear; }
+  /* The crystal ball is a photo on its own dark backdrop: fade its edges into the page. */
+  .orb img[src$=".png"] { -webkit-mask-image: radial-gradient(closest-side, #000 75%, transparent); mask-image: radial-gradient(closest-side, #000 75%, transparent); }
+  .orb.sfx img { animation: shake 0.4s infinite; }
   @keyframes shake { 0%, 100% { rotate: 0deg; } 25% { rotate: -4deg; } 75% { rotate: 4deg; } }
-  .status { font: 500 12px var(--mono); color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; min-height: 1.5em; }
-  .talk { background: var(--accent); color: var(--bg); border: 0; border-radius: 999px; padding: 14px 34px; font: 600 17px var(--body); cursor: pointer; min-width: 220px; }
-  .talk.live { background: transparent; color: var(--fg); border: 1px solid var(--accent); }
-  .hint { font-size: 12px; color: var(--muted); }
-  .err { color: var(--redact); font-size: 13px; min-height: 1.2em; }
+  .status { font-size: 12px; color: var(--muted); letter-spacing: 1.2px; min-height: 1.5em; }
+  .talk { background: var(--accent); color: var(--bg); border: 1px solid var(--accent); border-radius: 4px; height: 48px; padding: 0 32px; min-width: 240px;
+    font: 500 14px var(--mono); letter-spacing: 1.4px; text-transform: uppercase; cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s; }
+  .talk:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .talk.live { background: transparent; color: var(--fg); border-color: var(--accent-hover); }
+  .talk.live:hover { background: var(--accent); color: var(--bg); }
+  .hint { font-size: 14px; color: var(--muted); }
+  .err { color: var(--redact); font-size: 14px; min-height: 1.2em; }
 
-  .log { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+  .asks { display: grid; gap: 12px; }
+  .asks h2 { margin: 0; font-size: 14px; letter-spacing: 1.4px; color: var(--accent); text-align: center; }
+  .asks ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 480px) { .asks ul { grid-template-columns: 1fr; } }
+  .asks li { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font: 400 clamp(18px, 3.2vw, 22px)/1.15 var(--display); letter-spacing: -0.3px; color: var(--fg); }
+
+  .log { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
     min-height: 120px; max-height: 34vh; overflow-y: auto; }
   .log:empty::before { content: "What you both say shows up here."; color: var(--muted); font-size: 14px; margin: auto; }
-  .m { max-width: 85%; font-size: 15px; overflow-wrap: anywhere; }
-  .m .w { display: block; font: 500 10px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .m { max-width: 85%; font-size: 16px; color: var(--fg); overflow-wrap: anywhere; }
+  .m .w { display: block; font-size: 11px; letter-spacing: 1.1px; color: var(--muted); }
   .m.char .w { color: var(--accent); }
   .m.you { align-self: flex-end; text-align: right; }
   .m.pending { opacity: 0.6; }
-  .chip { background: var(--redact); color: #fff; border-radius: 4px; padding: 0 5px; font: 600 11px var(--mono); }
-  .redaction { display: none; font: 500 11px var(--mono); color: var(--redact); letter-spacing: 0.08em; }
+  .chip { background: var(--redact); color: #fff; border-radius: 4px; padding: 0 5px; font: 500 11px var(--mono); }
+  .redaction { display: none; font-size: 12px; color: var(--redact); letter-spacing: 1.2px; }
   body[data-char="crypt"] .redaction { display: block; }
-  footer { font-size: 11px; color: var(--muted); text-align: center; }
+  footer { font-size: 14px; color: var(--muted); text-align: center; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body data-char="therapista">
+<svg aria-hidden="true" viewBox="0 0 380 420" fill="none" class="web">
+<g stroke="#c7c3b2" stroke-opacity="0.32" stroke-width="1.5" stroke-linecap="round">
+<path d="M380 0L-40 0 M380 0L-9 157 M380 0L78 292 M380 0L209 384 M380 0L365 420"></path>
+<path d="M310 0Q321 12 315 26Q329 33 330 49Q345 50 352 64Q366 59 378 70 M240 0Q261 23 250 52Q279 66 279 97Q311 99 323 128Q353 118 375 140 M165 0Q198 35 181 81Q224 101 225 149Q273 152 293 196Q338 181 372 215 M85 0Q130 49 106 111Q166 139 168 205Q234 209 260 269Q323 248 370 295"></path>
+</g>
+</svg>
+<svg aria-hidden="true" viewBox="0 0 300 220" fill="none" class="moon">
+<path d="M36 52a34 34 0 1 0 30 50a28 28 0 1 1 -30 -50z" fill="#887bdd" fill-opacity="0.9"></path>
+<g fill="#fdfcf8">
+<circle cx="140" cy="30" r="2"></circle>
+<circle cx="210" cy="90" r="1.5"></circle>
+<circle cx="110" cy="150" r="1.5"></circle>
+<circle cx="250" cy="40" r="1"></circle>
+</g>
+<g fill="#b0a7e9" fill-opacity="0.7">
+<path d="M150 104c6-8 14-10 20-6c2-6 6-8 8-8c2 0 6 2 8 8c6-4 14-2 20 6c-8-2-14 0-18 6c-2-3-6-4-10-4s-8 1-10 4c-4-6-10-8-18-6z"></path>
+<path d="M226 168c4-5 9-6 13-4c1-4 4-5 5-5s4 1 5 5c4-2 9-1 13 4c-5-1-9 0-12 4c-1-2-4-3-6-3s-5 1-6 3c-3-4-7-5-12-4z"></path>
+</g>
+</svg>
+
 <div class="wrap">
   <header>
-    <span class="brand">Text-to-Screech</span>
-    <span class="when">AssemblyAI · Thu Oct 29</span>
+    <svg role="img" aria-label="AssemblyAI" viewBox="0 0 141 24" fill="currentColor" class="logo">
+<path d="M37.698 16.7132L38.9234 13.4518H44.334L45.5782 16.7132H47.897L42.9766 3.51665H40.3939L35.4546 16.7132H37.698ZM41.6193 5.85433L43.7307 11.6042H39.5267L41.6193 5.85433Z"></path>
+<path d="M48.9176 13.5272C48.9741 15.6198 50.7462 16.8263 53.329 16.8263C55.6667 16.8263 57.4199 15.6575 57.4199 13.81C57.4199 11.6608 55.6289 11.2083 53.4232 10.9444C52.0282 10.7936 51.1044 10.6805 51.1044 9.77558C51.1044 9.00264 51.8962 8.51249 53.1028 8.51249C54.3093 8.51249 55.1388 9.13461 55.2519 10.0207H57.2502C57.1183 8.04118 55.4404 6.94775 53.065 6.94775C50.7462 6.9289 49.1061 8.11659 49.1061 9.94525C49.1061 11.9436 50.8405 12.4149 53.0462 12.6788C54.5355 12.8673 55.4216 12.9428 55.4216 13.9796C55.4216 14.7526 54.5921 15.2427 53.329 15.2427C51.8585 15.2427 50.9913 14.5263 50.9159 13.5272H48.9176Z"></path>
+<path d="M58.9645 13.5272C59.021 15.6198 60.7931 16.8263 63.3759 16.8263C65.7135 16.8263 67.4668 15.6575 67.4668 13.81C67.4668 11.6608 65.6758 11.2083 63.4701 10.9444C62.0751 10.7936 61.1513 10.6805 61.1513 9.77558C61.1513 9.00264 61.9431 8.51249 63.1497 8.51249C64.3562 8.51249 65.1857 9.13461 65.2988 10.0207H67.2971C67.1652 8.04118 65.4873 6.94775 63.1119 6.94775C60.7931 6.9289 59.153 8.11659 59.153 9.94525C59.153 11.9436 60.8874 12.4149 63.0931 12.6788C64.5824 12.8673 65.4685 12.9428 65.4685 13.9796C65.4685 14.7526 64.639 15.2427 63.3759 15.2427C61.9054 15.2427 61.0382 14.5263 60.9628 13.5272H58.9645Z"></path>
+<path d="M74.1913 16.8263C76.5855 16.8263 78.2068 15.3747 78.5462 13.4706H76.5101C76.2273 14.5452 75.3224 15.1673 74.0782 15.1673C72.4757 15.1673 71.4389 14.0927 71.3823 12.4526V12.3206H78.6593C78.697 12.0567 78.7158 11.7928 78.7158 11.5477C78.6593 8.71986 76.7929 6.94775 74.0028 6.94775C71.1561 6.94775 69.252 8.92723 69.252 11.9059C69.252 14.8657 71.1561 16.8263 74.1913 16.8263ZM71.4577 10.8313C71.6085 9.4551 72.7208 8.5879 74.0216 8.5879C75.4355 8.5879 76.4347 9.39854 76.6044 10.8313H71.4577Z"></path>
+<path d="M92.0314 6.94775C90.4478 6.94775 89.3544 7.64529 88.7322 8.70101C88.1478 7.45676 87.0167 6.94775 85.7536 6.94775C84.302 6.96661 83.4725 7.60758 82.9258 8.32396L82.6995 7.06087H80.9274V16.7132H82.9635V11.5477C82.9635 9.83214 83.8307 8.70101 85.2257 8.70101C86.5642 8.70101 87.2618 9.58706 87.2618 11.2838V16.7132H89.3167V11.4911C89.3167 9.75673 90.2027 8.70101 91.5978 8.70101C92.9174 8.70101 93.615 9.58706 93.615 11.2838V16.7132H95.651V11.1518C95.651 8.09774 94.0297 6.94775 92.0314 6.94775Z"></path>
+<path d="M103.228 6.94775C101.738 6.94775 100.739 7.62643 100.098 8.49363V3.51665H98.0623V16.7132H99.8344L100.079 15.3181C100.683 16.1853 101.72 16.8263 103.228 16.8263C105.867 16.8263 107.79 14.8468 107.79 11.887C107.79 8.77642 105.867 6.94775 103.228 6.94775ZM102.888 15.1108C101.192 15.1108 100.079 13.7722 100.079 11.8682C100.079 10.0018 101.192 8.68216 102.888 8.68216C104.585 8.68216 105.716 10.0018 105.716 11.887C105.716 13.7911 104.585 15.1108 102.888 15.1108Z"></path>
+<path d="M109.987 16.7132H112.023V3.51665H109.987V16.7132Z"></path>
+<path d="M117.375 16.7697L116.998 17.7124C116.696 18.5041 116.507 18.6927 115.716 18.6927H114.283V20.4836H116.47C117.884 20.4836 118.298 19.7861 118.902 18.2214L123.275 7.06087H121.107L118.487 14.3944L115.791 7.06087H113.623L117.375 16.7697Z"></path>
+<path d="M125.769 16.7132L126.994 13.4518H132.405L133.649 16.7132H135.968L131.047 3.51665H128.465L123.525 16.7132H125.769ZM129.69 5.85433L131.801 11.6042H127.597L129.69 5.85433Z"></path>
+<path d="M137.887 16.7132H140.055V3.51665H137.887V16.7132Z"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M12.2496 0C10.4867 0 8.90488 1.08157 8.26713 2.72302L0 24H6.28017L12.7874 7.25245H12.7902C12.9534 6.84425 13.353 6.55584 13.8199 6.55584C14.2869 6.55584 14.6864 6.84425 14.8497 7.25245H15.7167V3.85532H14.1073L15.6053 0H12.2496Z"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M8.2677 2.72302C8.87959 1.1483 10.3603 0.0888597 12.0361 0.00532694L12.034 0H12.2501H14.6661H15.4972C17.2601 0 18.8419 1.08157 19.4797 2.72302L27.7468 24H21.3592L13.3424 3.36747C12.8835 2.35631 11.864 1.65296 10.6801 1.65296C9.49331 1.65296 8.47176 2.35976 8.0144 3.37493L8.2677 2.72302Z" fill-opacity="0.7"></path>
+</svg>
+    <span class="when">Text-to-Screech · Thu Oct 29</span>
   </header>
 
   <nav class="cast" id="cast" aria-label="Pick a character"></nav>
@@ -86,25 +133,32 @@
     <span class="eyebrow" id="station"></span>
     <h1 id="name"></h1>
     <p class="bio" id="bio"></p>
-    <div class="orb" id="orb" aria-hidden="true"></div>
+    <div class="orb" id="orb"></div>
     <div class="status" id="status">Tap talk to start</div>
     <button class="talk" id="talk">Talk</button>
     <span class="hint">Allow the microphone. Headphones help.</span>
-    <span class="redaction">● LIVE REDACTION ON</span>
+    <span class="redaction">● Live redaction on</span>
     <div class="err" id="err" role="alert"></div>
   </main>
+
+  <section class="asks" aria-labelledby="asks-h">
+    <h2 id="asks-h"></h2>
+    <ul id="asks"></ul>
+  </section>
 
   <section class="log" id="log" aria-live="polite"></section>
   <footer>Cloned voices on AssemblyAI's new streaming text-to-speech. Conversations aren't saved here.</footer>
 </div>
 
 <script>
+// Copy and art follow the station signs (the "Halloween station signs" design).
+const JACK_ASKS = ["Rhyme my name. Make it hurt.", "Roast my job. I can take it.", "Introduce me like I’m your next guest.", "I bet you can’t make me laugh.", "Roast my coffee order.", "Tell me your oldest joke. Like, 1725 old."];
 const CHARACTERS = {
-  therapista: { name: "Therapista", face: "🔮", station: "The witch's crystal ball", bio: "A licensed (she says) witch-therapist. Tell her your name and what you do, then ask for a fortune.", talk: "Sit with Therapista", sfx: ["/api/sound?n=cackle-1", "/api/sound?n=cackle-2"], sfxEvent: "cackle", sfxAfterGreeting: true },
-  crypt: { name: "Crypt", face: "🗝️", station: "The Eternal Vault", bio: "Keeper of the vault. He'll verify you, then ask for your card number. Any number you say is redacted.", talk: "Enter the vault", sfx: ["/api/sound?n=scary"], sfxEvent: "scary_sound", sfxOn: /curses|spirits concur|verified/i, sfxAfterGreeting: true, redact: true },
-  jack: { name: "Jack the Roaster", face: "🎃", station: "The pumpkin patch stage", bio: "Three hundred years of comedy. Tell him your name for a rhyme, and your job for a roast.", talk: "Step on stage", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
-  jack2: { name: "Jack the Roaster 2.0", tag: "Testing", face: "🎃", spooky: { rate: 0.87, echo: 0.11 }, station: "The pumpkin patch, test stage", bio: "Jack in a brand-new voice we're trying out. Same rhymes, same roasts. Tell him your name and your job.", talk: "Try the new Jack", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
-  jack3: { name: "Jack the Roaster 3.0", tag: "Testing", face: "🎃", spooky: { rate: 0.9, echo: 0.09 }, station: "The pumpkin patch, test stage", bio: "Jack in another new voice we're trying out. Same rhymes, same roasts. Tell him your name and your job.", talk: "Try Jack 3.0", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
+  therapista: { name: "Therapista", art: "/art/crystal-ball.png", station: "Licensed (she says) witch-therapist", bio: "She reads your aura and your vibe, with warm validation and a little sass.", asksTitle: "Try asking her", asks: ["What are my red flags?", "Be honest. Am I the problem?", "What’s my toxic trait?", "Roast my coping mechanisms.", "What does my outfit say about my attachment style?", "Read my aura, and don’t sugarcoat it."], talk: "Sit with Therapista", sfx: ["/api/sound?n=cackle-1", "/api/sound?n=cackle-2"], sfxEvent: "cackle", sfxAfterGreeting: true },
+  crypt: { name: "The Crypt Keeper", short: "Crypt Keeper", art: "/art/crypt-keeper.svg", station: "Keeper of the Eternal Vault", bio: "He guards your secrets and reads back only what’s safe: card ending in ****.", asksTitle: "Try asking him", asks: ["Verify my identity. I’m ready.", "Read me my card number. Go on.", "Is my data really safe in your vault?", "I forgot my password. Help.", "Can I withdraw from my soul account?", "Who tried to rob the vault last century?"], talk: "Enter the vault", sfx: ["/api/sound?n=scary"], sfxEvent: "scary_sound", sfxOn: /curses|spirits concur|verified/i, sfxAfterGreeting: true, redact: true },
+  jack: { name: "Jack the Roaster", art: "/art/pumpkin.svg", station: "The pumpkin patch stage", bio: "300 years of stand-up, and he’s sure he’s the funniest comedian alive.", asksTitle: "Try asking him", asks: JACK_ASKS, talk: "Step on stage", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
+  jack2: { name: "Jack the Roaster 2.0", short: "Jack 2.0", tag: "Testing", art: "/art/pumpkin.svg", spooky: { rate: 0.87, echo: 0.11 }, station: "The pumpkin patch, test stage", bio: "Jack in a brand-new voice we’re trying out. Same rhymes, same roasts.", asksTitle: "Try asking him", asks: JACK_ASKS, talk: "Try the new Jack", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
+  jack3: { name: "Jack the Roaster 3.0", short: "Jack 3.0", tag: "Testing", art: "/art/pumpkin.svg", spooky: { rate: 0.9, echo: 0.09 }, station: "The pumpkin patch, test stage", bio: "Jack in another new voice we’re trying out. Same rhymes, same roasts.", asksTitle: "Try asking him", asks: JACK_ASKS, talk: "Try Jack 3.0", sfx: [], sfxEvent: null, sfxAfterGreeting: false },
 };
 const $ = (id) => document.getElementById(id);
 let current = "therapista";
@@ -112,7 +166,7 @@ let current = "therapista";
 // ---------- picking a character ----------
 function renderCast() {
   $("cast").innerHTML = Object.entries(CHARACTERS).map(([id, c]) =>
-    `<button class="pick" data-id="${id}" aria-pressed="${id === current}"><span class="face">${c.face}</span><span class="nm">${c.name}</span>${c.tag ? `<span class="tag">${c.tag}</span>` : ""}</button>`).join("");
+    `<button class="pick" data-id="${id}" aria-pressed="${id === current}"><img src="${c.art}" alt=""><span class="nm">${c.short ?? c.name}</span>${c.tag ? `<span class="tag">${c.tag}</span>` : ""}</button>`).join("");
   $("cast").querySelectorAll(".pick").forEach((b) => b.addEventListener("click", () => pick(b.dataset.id)));
 }
 function pick(id) {
@@ -125,7 +179,9 @@ function pick(id) {
   $("name").textContent = c.name;
   $("station").textContent = c.station;
   $("bio").textContent = c.bio;
-  $("orb").textContent = c.face;
+  $("orb").innerHTML = `<img src="${c.art}" alt="">`;
+  $("asks-h").textContent = c.asksTitle;
+  $("asks").innerHTML = c.asks.map((q) => `<li>“${esc(q)}”</li>`).join("");
   $("log").innerHTML = "";
   $("err").textContent = "";
   setLive(false);

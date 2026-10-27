@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import ticket from "../api/ticket.js";
 import sound from "../api/sound.js";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const types = { ".html": "text/html; charset=utf-8", ".mp3": "audio/mpeg", ".js": "text/javascript" };
+const types = { ".html": "text/html; charset=utf-8", ".mp3": "audio/mpeg", ".js": "text/javascript", ".svg": "image/svg+xml", ".png": "image/png" };
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://x");
   const api = { "/api/ticket": ticket, "/api/sound": sound }[url.pathname];

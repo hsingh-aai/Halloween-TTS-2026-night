@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 330" fill="none">
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+<feGaussianBlur stdDeviation="9"></feGaussianBlur>
+</filter>
+<radialGradient id="aura" cx="0.5" cy="0.55" r="0.5">
+<stop offset="0" stop-color="#e8792a" stop-opacity="0.32"></stop>
+<stop offset="1" stop-color="#1d1b16" stop-opacity="0"></stop>
+</radialGradient>
+</defs>
+<ellipse cx="190" cy="175" rx="190" ry="155" fill="url(#aura)"></ellipse>
+<path d="M186 58c-2-22 4-38 18-48c4-3 9 2 6 6c-10 10-12 24-10 42z" fill="#4f5a2a" stroke="#1d1b16" stroke-width="3"></path>
+<g stroke="#1d1b16" stroke-width="4">
+<ellipse cx="108" cy="168" rx="72" ry="98" fill="#b4500f"></ellipse>
+<ellipse cx="272" cy="168" rx="72" ry="98" fill="#b4500f"></ellipse>
+<ellipse cx="140" cy="166" rx="74" ry="106" fill="#d9661a"></ellipse>
+<ellipse cx="240" cy="166" rx="74" ry="106" fill="#d9661a"></ellipse>
+<ellipse cx="190" cy="164" rx="68" ry="110" fill="#ef8530"></ellipse>
+</g>
+<g fill="#ffcf6b" filter="url(#glow)" opacity="0.9">
+<path d="M118 128l34-12-8 38z"></path>
+<path d="M176 168h28l-14 22z"></path>
+<path d="M104 196c26 22 58 32 86 32s60-10 86-32l-12 34-14-10-12 18-16-12-16 14-16-14-16 12-12-18-14 10z"></path>
+</g>
+<g fill="#fff3cf">
+<path d="M118 128l34-12-8 38z"></path>
+<path d="M176 168h28l-14 22z"></path>
+<path d="M104 196c26 22 58 32 86 32s60-10 86-32l-12 34-14-10-12 18-16-12-16 14-16-14-16 12-12-18-14 10z"></path>
+</g>
+<path d="M226 134q18-18 38 0" stroke="#ffcf6b" stroke-width="12" stroke-linecap="round" filter="url(#glow)" opacity="0.9"></path>
+<path d="M226 134q18-18 38 0" stroke="#fff3cf" stroke-width="8" stroke-linecap="round"></path>
+<g fill="#887bdd" stroke="#1d1b16" stroke-width="3">
+<path d="M190 300l-52-24v48z"></path>
+<path d="M190 300l52-24v48z"></path>
+<circle cx="190" cy="300" r="11"></circle>
+</g>
+</svg>
