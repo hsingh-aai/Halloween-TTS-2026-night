@@ -4,3 +4,5 @@ livekit/__pycache__/
 aai-agent/node_modules/
 aai-agent/.aai/
 utterances/*.pcm
+livekit-ref/.venv/
+livekit-ref/__pycache__/

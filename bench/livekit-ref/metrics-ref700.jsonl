@@ -1,0 +1,356 @@
+{"t": 1793136008.910613, "type": "VADMetrics"}
+{"t": 1793136009.910861, "type": "VADMetrics"}
+{"t": 1793136010.96119, "type": "VADMetrics"}
+{"t": 1793136011.961625, "type": "VADMetrics"}
+{"t": 1793136013.011277, "type": "VADMetrics"}
+{"t": 1793136014.011745, "type": "VADMetrics"}
+{"t": 1793136014.867868, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136014.8684192, "type": "EOUMetrics", "end_of_utterance_delay": 0.3, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136015.0606909, "type": "VADMetrics"}
+{"t": 1793136015.21278, "type": "LLMMetrics", "ttft": 316.6, "duration": 367.0}
+{"t": 1793136015.6678798, "type": "TTSMetrics", "ttfb": 123.5, "duration": 453.7}
+{"t": 1793136016.060412, "type": "VADMetrics"}
+{"t": 1793136017.11061, "type": "VADMetrics"}
+{"t": 1793136018.111557, "type": "VADMetrics"}
+{"t": 1793136019.1613288, "type": "VADMetrics"}
+{"t": 1793136020.1615648, "type": "VADMetrics"}
+{"t": 1793136021.2115011, "type": "VADMetrics"}
+{"t": 1793136022.210848, "type": "VADMetrics"}
+{"t": 1793136023.261354, "type": "VADMetrics"}
+{"t": 1793136024.260844, "type": "VADMetrics"}
+{"t": 1793136024.948579, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136024.949381, "type": "EOUMetrics", "end_of_utterance_delay": 0.3, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136025.311193, "type": "VADMetrics"}
+{"t": 1793136025.619738, "type": "LLMMetrics", "ttft": 490.2, "duration": 672.8}
+{"t": 1793136026.0964632, "type": "TTSMetrics", "ttfb": 85.7, "duration": 475.6}
+{"t": 1793136026.311386, "type": "VADMetrics"}
+{"t": 1793136027.3608801, "type": "VADMetrics"}
+{"t": 1793136028.361392, "type": "VADMetrics"}
+{"t": 1793136029.411446, "type": "VADMetrics"}
+{"t": 1793136030.412034, "type": "VADMetrics"}
+{"t": 1793136031.4615989, "type": "VADMetrics"}
+{"t": 1793136032.461647, "type": "VADMetrics"}
+{"t": 1793136033.511345, "type": "VADMetrics"}
+{"t": 1793136034.5114062, "type": "VADMetrics"}
+{"t": 1793136035.049761, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136035.050381, "type": "EOUMetrics", "end_of_utterance_delay": 0.6, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136035.4975538, "type": "LLMMetrics", "ttft": 313.1, "duration": 450.1}
+{"t": 1793136035.512017, "type": "VADMetrics"}
+{"t": 1793136035.939206, "type": "TTSMetrics", "ttfb": 106.9, "duration": 440.6}
+{"t": 1793136036.561537, "type": "VADMetrics"}
+{"t": 1793136037.561697, "type": "VADMetrics"}
+{"t": 1793136038.611618, "type": "VADMetrics"}
+{"t": 1793136039.611219, "type": "VADMetrics"}
+{"t": 1793136040.661101, "type": "VADMetrics"}
+{"t": 1793136041.661258, "type": "VADMetrics"}
+{"t": 1793136042.711152, "type": "VADMetrics"}
+{"t": 1793136043.711334, "type": "VADMetrics"}
+{"t": 1793136044.748311, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136044.7492218, "type": "EOUMetrics", "end_of_utterance_delay": 0.3, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136044.761811, "type": "VADMetrics"}
+{"t": 1793136045.256185, "type": "LLMMetrics", "ttft": 507.3, "duration": 509.8}
+{"t": 1793136045.761214, "type": "VADMetrics"}
+{"t": 1793136045.766766, "type": "TTSMetrics", "ttfb": 106.9, "duration": 509.7}
+{"t": 1793136046.811779, "type": "VADMetrics"}
+{"t": 1793136047.811369, "type": "VADMetrics"}
+{"t": 1793136048.8617039, "type": "VADMetrics"}
+{"t": 1793136049.861912, "type": "VADMetrics"}
+{"t": 1793136050.911063, "type": "VADMetrics"}
+{"t": 1793136051.910958, "type": "VADMetrics"}
+{"t": 1793136052.960854, "type": "VADMetrics"}
+{"t": 1793136053.9620512, "type": "VADMetrics"}
+{"t": 1793136055.0120351, "type": "VADMetrics"}
+{"t": 1793136056.01171, "type": "VADMetrics"}
+{"t": 1793136056.2662752, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136056.2670531, "type": "EOUMetrics", "end_of_utterance_delay": 0.3, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136056.759064, "type": "LLMMetrics", "ttft": 493.0, "duration": 494.7}
+{"t": 1793136057.061478, "type": "VADMetrics"}
+{"t": 1793136057.184342, "type": "TTSMetrics", "ttfb": 83.9, "duration": 424.2}
+{"t": 1793136058.061918, "type": "VADMetrics"}
+{"t": 1793136059.111816, "type": "VADMetrics"}
+{"t": 1793136060.1118479, "type": "VADMetrics"}
+{"t": 1793136061.112128, "type": "VADMetrics"}
+{"t": 1793136062.161881, "type": "VADMetrics"}
+{"t": 1793136063.162234, "type": "VADMetrics"}
+{"t": 1793136064.211753, "type": "VADMetrics"}
+{"t": 1793136065.212061, "type": "VADMetrics"}
+{"t": 1793136066.248592, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136066.2494311, "type": "EOUMetrics", "end_of_utterance_delay": 0.4, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136066.2611399, "type": "VADMetrics"}
+{"t": 1793136066.607213, "type": "LLMMetrics", "ttft": 359.2, "duration": 360.8}
+{"t": 1793136067.167233, "type": "TTSMetrics", "ttfb": 109.1, "duration": 559.0}
+{"t": 1793136067.261396, "type": "VADMetrics"}
+{"t": 1793136068.31175, "type": "VADMetrics"}
+{"t": 1793136069.311897, "type": "VADMetrics"}
+{"t": 1793136070.362133, "type": "VADMetrics"}
+{"t": 1793136071.3621519, "type": "VADMetrics"}
+{"t": 1793136072.411406, "type": "VADMetrics"}
+{"t": 1793136073.41177, "type": "VADMetrics"}
+{"t": 1793136074.462067, "type": "VADMetrics"}
+{"t": 1793136075.462261, "type": "VADMetrics"}
+{"t": 1793136076.511317, "type": "VADMetrics"}
+{"t": 1793136076.849708, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136076.8503108, "type": "EOUMetrics", "end_of_utterance_delay": 0.4, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136077.2933812, "type": "LLMMetrics", "ttft": 370.0, "duration": 446.3}
+{"t": 1793136077.514136, "type": "VADMetrics"}
+{"t": 1793136077.832084, "type": "TTSMetrics", "ttfb": 85.1, "duration": 537.4}
+{"t": 1793136078.56242, "type": "VADMetrics"}
+{"t": 1793136079.5620322, "type": "VADMetrics"}
+{"t": 1793136080.612381, "type": "VADMetrics"}
+{"t": 1793136081.61152, "type": "VADMetrics"}
+{"t": 1793136082.662325, "type": "VADMetrics"}
+{"t": 1793136083.662186, "type": "VADMetrics"}
+{"t": 1793136084.712142, "type": "VADMetrics"}
+{"t": 1793136085.7121909, "type": "VADMetrics"}
+{"t": 1793136086.712438, "type": "VADMetrics"}
+{"t": 1793136087.762201, "type": "VADMetrics"}
+{"t": 1793136088.5502279, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136088.550959, "type": "EOUMetrics", "end_of_utterance_delay": 0.4, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136088.761659, "type": "VADMetrics"}
+{"t": 1793136089.077284, "type": "LLMMetrics", "ttft": 528.0, "duration": 529.4}
+{"t": 1793136089.622443, "type": "TTSMetrics", "ttfb": 84.4, "duration": 544.4}
+{"t": 1793136089.812275, "type": "VADMetrics"}
+{"t": 1793136090.811766, "type": "VADMetrics"}
+{"t": 1793136091.862187, "type": "VADMetrics"}
+{"t": 1793136092.861899, "type": "VADMetrics"}
+{"t": 1793136093.912321, "type": "VADMetrics"}
+{"t": 1793136094.912375, "type": "VADMetrics"}
+{"t": 1793136095.9626381, "type": "VADMetrics"}
+{"t": 1793136352.465655, "type": "VADMetrics"}
+{"t": 1793136353.465454, "type": "VADMetrics"}
+{"t": 1793136354.5153542, "type": "VADMetrics"}
+{"t": 1793136355.514973, "type": "VADMetrics"}
+{"t": 1793136356.565274, "type": "VADMetrics"}
+{"t": 1793136357.5663638, "type": "VADMetrics"}
+{"t": 1793136358.23373, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136358.2343922, "type": "EOUMetrics", "end_of_utterance_delay": 0.4, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136358.615525, "type": "VADMetrics"}
+{"t": 1793136359.014692, "type": "LLMMetrics", "ttft": 624.5, "duration": 810.9}
+{"t": 1793136359.579558, "type": "TTSMetrics", "ttfb": 125.0, "duration": 562.0}
+{"t": 1793136359.617942, "type": "VADMetrics"}
+{"t": 1793136360.665313, "type": "VADMetrics"}
+{"t": 1793136361.666338, "type": "VADMetrics"}
+{"t": 1793136362.716653, "type": "VADMetrics"}
+{"t": 1793136363.715799, "type": "VADMetrics"}
+{"t": 1793136364.765665, "type": "VADMetrics"}
+{"t": 1793136365.7658749, "type": "VADMetrics"}
+{"t": 1793136366.815702, "type": "VADMetrics"}
+{"t": 1793136367.816065, "type": "VADMetrics"}
+{"t": 1793136368.865889, "type": "VADMetrics"}
+{"t": 1793136369.2058408, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136369.207188, "type": "EOUMetrics", "end_of_utterance_delay": 0.6, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.1}
+{"t": 1793136369.72824, "type": "LLMMetrics", "ttft": 444.8, "duration": 525.7}
+{"t": 1793136369.865236, "type": "VADMetrics"}
+{"t": 1793136370.1890502, "type": "TTSMetrics", "ttfb": 86.0, "duration": 459.2}
+{"t": 1793136370.915814, "type": "VADMetrics"}
+{"t": 1793136371.915931, "type": "VADMetrics"}
+{"t": 1793136372.965743, "type": "VADMetrics"}
+{"t": 1793136373.967041, "type": "VADMetrics"}
+{"t": 1793136375.0157351, "type": "VADMetrics"}
+{"t": 1793136376.015629, "type": "VADMetrics"}
+{"t": 1793136377.065331, "type": "VADMetrics"}
+{"t": 1793136378.065644, "type": "VADMetrics"}
+{"t": 1793136378.903938, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136378.905024, "type": "EOUMetrics", "end_of_utterance_delay": 0.6, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.1}
+{"t": 1793136379.065817, "type": "VADMetrics"}
+{"t": 1793136379.266984, "type": "LLMMetrics", "ttft": 304.2, "duration": 366.4}
+{"t": 1793136379.740441, "type": "TTSMetrics", "ttfb": 84.9, "duration": 471.8}
+{"t": 1793136380.115424, "type": "VADMetrics"}
+{"t": 1793136381.115616, "type": "VADMetrics"}
+{"t": 1793136382.16508, "type": "VADMetrics"}
+{"t": 1793136383.165838, "type": "VADMetrics"}
+{"t": 1793136384.215564, "type": "VADMetrics"}
+{"t": 1793136385.215998, "type": "VADMetrics"}
+{"t": 1793136386.265734, "type": "VADMetrics"}
+{"t": 1793136387.266119, "type": "VADMetrics"}
+{"t": 1793136388.3157172, "type": "VADMetrics"}
+{"t": 1793136388.905921, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136388.907684, "type": "EOUMetrics", "end_of_utterance_delay": 0.5, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.1}
+{"t": 1793136389.3164952, "type": "VADMetrics"}
+{"t": 1793136389.374496, "type": "LLMMetrics", "ttft": 405.6, "duration": 472.2}
+{"t": 1793136390.00668, "type": "TTSMetrics", "ttfb": 85.9, "duration": 629.8}
+{"t": 1793136390.36615, "type": "VADMetrics"}
+{"t": 1793136391.3658571, "type": "VADMetrics"}
+{"t": 1793136392.414779, "type": "VADMetrics"}
+{"t": 1793136393.414412, "type": "VADMetrics"}
+{"t": 1793136394.465865, "type": "VADMetrics"}
+{"t": 1793136395.465784, "type": "VADMetrics"}
+{"t": 1793136396.516166, "type": "VADMetrics"}
+{"t": 1793136397.516976, "type": "VADMetrics"}
+{"t": 1793136398.567064, "type": "VADMetrics"}
+{"t": 1793136399.566087, "type": "VADMetrics"}
+{"t": 1793136400.616408, "type": "VADMetrics"}
+{"t": 1793136401.167218, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136401.1683168, "type": "EOUMetrics", "end_of_utterance_delay": 0.6, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.1}
+{"t": 1793136401.615795, "type": "VADMetrics"}
+{"t": 1793136401.654853, "type": "LLMMetrics", "ttft": 319.1, "duration": 492.7}
+{"t": 1793136402.1794748, "type": "TTSMetrics", "ttfb": 85.4, "duration": 523.4}
+{"t": 1793136402.6657002, "type": "VADMetrics"}
+{"t": 1793136403.665725, "type": "VADMetrics"}
+{"t": 1793136404.666286, "type": "VADMetrics"}
+{"t": 1793136405.716384, "type": "VADMetrics"}
+{"t": 1793136406.716238, "type": "VADMetrics"}
+{"t": 1793136407.7661, "type": "VADMetrics"}
+{"t": 1793136408.767021, "type": "VADMetrics"}
+{"t": 1793136409.816677, "type": "VADMetrics"}
+{"t": 1793136410.8175611, "type": "VADMetrics"}
+{"t": 1793136411.848913, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136411.849643, "type": "EOUMetrics", "end_of_utterance_delay": 0.8, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136411.86551, "type": "VADMetrics"}
+{"t": 1793136412.339023, "type": "LLMMetrics", "ttft": 409.5, "duration": 494.6}
+{"t": 1793136412.8702898, "type": "TTSMetrics", "ttfb": 105.7, "duration": 529.7}
+{"t": 1793136412.871517, "type": "VADMetrics"}
+{"t": 1793136413.9158661, "type": "VADMetrics"}
+{"t": 1793136414.915918, "type": "VADMetrics"}
+{"t": 1793136415.965914, "type": "VADMetrics"}
+{"t": 1793136416.966605, "type": "VADMetrics"}
+{"t": 1793136418.016027, "type": "VADMetrics"}
+{"t": 1793136419.016862, "type": "VADMetrics"}
+{"t": 1793136420.0662, "type": "VADMetrics"}
+{"t": 1793136421.066189, "type": "VADMetrics"}
+{"t": 1793136422.0077922, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136422.009058, "type": "EOUMetrics", "end_of_utterance_delay": 1.4, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.1}
+{"t": 1793136422.116053, "type": "VADMetrics"}
+{"t": 1793136422.46092, "type": "LLMMetrics", "ttft": 366.2, "duration": 458.5}
+{"t": 1793136422.999511, "type": "TTSMetrics", "ttfb": 160.7, "duration": 537.0}
+{"t": 1793136423.1168818, "type": "VADMetrics"}
+{"t": 1793136424.1665962, "type": "VADMetrics"}
+{"t": 1793136425.166253, "type": "VADMetrics"}
+{"t": 1793136426.216668, "type": "VADMetrics"}
+{"t": 1793136427.215509, "type": "VADMetrics"}
+{"t": 1793136428.2664478, "type": "VADMetrics"}
+{"t": 1793136429.266161, "type": "VADMetrics"}
+{"t": 1793136430.2672179, "type": "VADMetrics"}
+{"t": 1793136431.3155258, "type": "VADMetrics"}
+{"t": 1793136432.317711, "type": "VADMetrics"}
+{"t": 1793136433.3663092, "type": "VADMetrics"}
+{"t": 1793136433.407447, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136433.40901, "type": "EOUMetrics", "end_of_utterance_delay": 0.6, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.1}
+{"t": 1793136433.934442, "type": "LLMMetrics", "ttft": 435.8, "duration": 532.0}
+{"t": 1793136434.3716328, "type": "VADMetrics"}
+{"t": 1793136434.477046, "type": "TTSMetrics", "ttfb": 85.1, "duration": 541.0}
+{"t": 1793136435.416233, "type": "VADMetrics"}
+{"t": 1793136436.417753, "type": "VADMetrics"}
+{"t": 1793136437.4665961, "type": "VADMetrics"}
+{"t": 1793136438.467992, "type": "VADMetrics"}
+{"t": 1793136439.516104, "type": "VADMetrics"}
+{"t": 1793136440.515748, "type": "VADMetrics"}
+{"t": 1793136721.496452, "type": "VADMetrics"}
+{"t": 1793136722.496167, "type": "VADMetrics"}
+{"t": 1793136723.546357, "type": "VADMetrics"}
+{"t": 1793136724.5462, "type": "VADMetrics"}
+{"t": 1793136725.595205, "type": "VADMetrics"}
+{"t": 1793136726.595876, "type": "VADMetrics"}
+{"t": 1793136727.260742, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136727.2612312, "type": "EOUMetrics", "end_of_utterance_delay": 0.5, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136727.645489, "type": "VADMetrics"}
+{"t": 1793136727.869705, "type": "LLMMetrics", "ttft": 539.4, "duration": 636.2}
+{"t": 1793136728.320072, "type": "TTSMetrics", "ttfb": 150.2, "duration": 448.9}
+{"t": 1793136728.645509, "type": "VADMetrics"}
+{"t": 1793136729.694925, "type": "VADMetrics"}
+{"t": 1793136730.696067, "type": "VADMetrics"}
+{"t": 1793136731.744991, "type": "VADMetrics"}
+{"t": 1793136732.745418, "type": "VADMetrics"}
+{"t": 1793136733.795636, "type": "VADMetrics"}
+{"t": 1793136734.795684, "type": "VADMetrics"}
+{"t": 1793136735.845385, "type": "VADMetrics"}
+{"t": 1793136736.846186, "type": "VADMetrics"}
+{"t": 1793136737.3367, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136737.337758, "type": "EOUMetrics", "end_of_utterance_delay": 0.5, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136737.895583, "type": "VADMetrics"}
+{"t": 1793136738.053876, "type": "LLMMetrics", "ttft": 541.7, "duration": 719.9}
+{"t": 1793136738.5516438, "type": "TTSMetrics", "ttfb": 86.6, "duration": 496.2}
+{"t": 1793136738.896348, "type": "VADMetrics"}
+{"t": 1793136739.945471, "type": "VADMetrics"}
+{"t": 1793136740.9459121, "type": "VADMetrics"}
+{"t": 1793136741.995637, "type": "VADMetrics"}
+{"t": 1793136742.9954581, "type": "VADMetrics"}
+{"t": 1793136744.047439, "type": "VADMetrics"}
+{"t": 1793136745.046675, "type": "VADMetrics"}
+{"t": 1793136746.096092, "type": "VADMetrics"}
+{"t": 1793136747.096368, "type": "VADMetrics"}
+{"t": 1793136747.6365771, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136747.637693, "type": "EOUMetrics", "end_of_utterance_delay": 0.5, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.1}
+{"t": 1793136748.0972228, "type": "VADMetrics"}
+{"t": 1793136748.191495, "type": "LLMMetrics", "ttft": 346.2, "duration": 557.9}
+{"t": 1793136748.6650429, "type": "TTSMetrics", "ttfb": 108.3, "duration": 471.4}
+{"t": 1793136749.145489, "type": "VADMetrics"}
+{"t": 1793136750.146057, "type": "VADMetrics"}
+{"t": 1793136751.196501, "type": "VADMetrics"}
+{"t": 1793136752.1974761, "type": "VADMetrics"}
+{"t": 1793136753.24633, "type": "VADMetrics"}
+{"t": 1793136754.247853, "type": "VADMetrics"}
+{"t": 1793136755.297378, "type": "VADMetrics"}
+{"t": 1793136756.298122, "type": "VADMetrics"}
+{"t": 1793136757.346682, "type": "VADMetrics"}
+{"t": 1793136757.540839, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136757.541664, "type": "EOUMetrics", "end_of_utterance_delay": 0.9, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136758.165542, "type": "LLMMetrics", "ttft": 498.2, "duration": 627.3}
+{"t": 1793136758.346933, "type": "VADMetrics"}
+{"t": 1793136758.6935549, "type": "TTSMetrics", "ttfb": 107.4, "duration": 526.6}
+{"t": 1793136759.395471, "type": "VADMetrics"}
+{"t": 1793136760.3956869, "type": "VADMetrics"}
+{"t": 1793136761.445709, "type": "VADMetrics"}
+{"t": 1793136762.4467928, "type": "VADMetrics"}
+{"t": 1793136763.496397, "type": "VADMetrics"}
+{"t": 1793136764.4966521, "type": "VADMetrics"}
+{"t": 1793136765.547049, "type": "VADMetrics"}
+{"t": 1793136766.5459242, "type": "VADMetrics"}
+{"t": 1793136767.59764, "type": "VADMetrics"}
+{"t": 1793136768.596533, "type": "VADMetrics"}
+{"t": 1793136768.9536572, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136768.954496, "type": "EOUMetrics", "end_of_utterance_delay": 0.6, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136769.584639, "type": "LLMMetrics", "ttft": 490.8, "duration": 633.8}
+{"t": 1793136769.646861, "type": "VADMetrics"}
+{"t": 1793136770.006593, "type": "TTSMetrics", "ttfb": 87.0, "duration": 420.7}
+{"t": 1793136770.6475039, "type": "VADMetrics"}
+{"t": 1793136771.696374, "type": "VADMetrics"}
+{"t": 1793136772.6952949, "type": "VADMetrics"}
+{"t": 1793136773.697922, "type": "VADMetrics"}
+{"t": 1793136774.7473652, "type": "VADMetrics"}
+{"t": 1793136775.7457979, "type": "VADMetrics"}
+{"t": 1793136776.79706, "type": "VADMetrics"}
+{"t": 1793136777.796874, "type": "VADMetrics"}
+{"t": 1793136778.845184, "type": "VADMetrics"}
+{"t": 1793136779.339631, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136779.3407092, "type": "EOUMetrics", "end_of_utterance_delay": 0.8, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.1}
+{"t": 1793136779.846528, "type": "VADMetrics"}
+{"t": 1793136779.9312398, "type": "LLMMetrics", "ttft": 507.8, "duration": 595.8}
+{"t": 1793136780.454587, "type": "TTSMetrics", "ttfb": 120.0, "duration": 521.8}
+{"t": 1793136780.896796, "type": "VADMetrics"}
+{"t": 1793136781.896992, "type": "VADMetrics"}
+{"t": 1793136782.946523, "type": "VADMetrics"}
+{"t": 1793136783.946181, "type": "VADMetrics"}
+{"t": 1793136784.99645, "type": "VADMetrics"}
+{"t": 1793136785.9965131, "type": "VADMetrics"}
+{"t": 1793136787.0467288, "type": "VADMetrics"}
+{"t": 1793136788.0468092, "type": "VADMetrics"}
+{"t": 1793136789.09681, "type": "VADMetrics"}
+{"t": 1793136789.238592, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136789.23944, "type": "EOUMetrics", "end_of_utterance_delay": 0.5, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136790.097731, "type": "VADMetrics"}
+{"t": 1793136790.68329, "type": "LLMMetrics", "ttft": 1309.5, "duration": 1448.3}
+{"t": 1793136791.146276, "type": "VADMetrics"}
+{"t": 1793136791.2041962, "type": "TTSMetrics", "ttfb": 87.7, "duration": 519.7}
+{"t": 1793136792.147176, "type": "VADMetrics"}
+{"t": 1793136793.196933, "type": "VADMetrics"}
+{"t": 1793136794.196872, "type": "VADMetrics"}
+{"t": 1793136795.247345, "type": "VADMetrics"}
+{"t": 1793136796.247052, "type": "VADMetrics"}
+{"t": 1793136797.2976232, "type": "VADMetrics"}
+{"t": 1793136798.296874, "type": "VADMetrics"}
+{"t": 1793136799.2974799, "type": "VADMetrics"}
+{"t": 1793136800.346229, "type": "VADMetrics"}
+{"t": 1793136801.3463879, "type": "VADMetrics"}
+{"t": 1793136801.5358279, "type": "STTMetrics", "duration": 0.0}
+{"t": 1793136801.5365279, "type": "EOUMetrics", "end_of_utterance_delay": 0.3, "transcription_delay": 0.0, "on_user_turn_completed_delay": 0.0}
+{"t": 1793136802.1560209, "type": "LLMMetrics", "ttft": 599.0, "duration": 622.2}
+{"t": 1793136802.39611, "type": "VADMetrics"}
+{"t": 1793136802.7499578, "type": "TTSMetrics", "ttfb": 155.8, "duration": 592.3}
+{"t": 1793136803.3972569, "type": "VADMetrics"}
+{"t": 1793136804.447329, "type": "VADMetrics"}
+{"t": 1793136805.446899, "type": "VADMetrics"}
+{"t": 1793136806.49725, "type": "VADMetrics"}
+{"t": 1793136807.497159, "type": "VADMetrics"}
+{"t": 1793136808.547252, "type": "VADMetrics"}
+{"t": 1793136809.5472078, "type": "VADMetrics"}

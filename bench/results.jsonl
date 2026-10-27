@@ -110,3 +110,115 @@
 {"framework": "livekit-tuned", "round": 6, "utt": 5, "latency_ms": 2701.8}
 {"framework": "livekit-tuned", "round": 6, "utt": 6, "latency_ms": 3851.1}
 {"framework": "livekit-tuned", "round": 6, "utt": 7, "latency_ms": 2541.7}
+{"framework": "livekit-ref", "round": 1, "utt": 0, "latency_ms": 1598.0}
+{"framework": "livekit-ref", "round": 1, "utt": 1, "latency_ms": 1608.6}
+{"framework": "livekit-ref", "round": 1, "utt": 2, "latency_ms": 1189.2}
+{"framework": "livekit-ref", "round": 1, "utt": 3, "latency_ms": 1879.4}
+{"framework": "livekit-ref", "round": 1, "utt": 4, "latency_ms": 1677.5}
+{"framework": "livekit-ref", "round": 1, "utt": 5, "latency_ms": 1588.2}
+{"framework": "livekit-ref", "round": 1, "utt": 6, "latency_ms": 1478.4}
+{"framework": "livekit-ref", "round": 1, "utt": 7, "latency_ms": 1789.5}
+{"framework":"aai-u36","round":1,"utt":0,"latency_ms":2016.2}
+{"framework":"aai-u36","round":1,"utt":1,"latency_ms":1920}
+{"framework":"aai-u36","round":1,"utt":2,"latency_ms":2031.9}
+{"framework":"aai-u36","round":1,"utt":3,"latency_ms":1656.1}
+{"framework":"aai-u36","round":1,"utt":4,"latency_ms":2000.3}
+{"framework":"aai-u36","round":1,"utt":5,"latency_ms":2088.1}
+{"framework":"aai-u36","round":1,"utt":6,"latency_ms":1705.7}
+{"framework":"aai-u36","round":1,"utt":7,"latency_ms":2025}
+{"framework": "livekit-ref", "round": 2, "utt": 0, "latency_ms": 1352.8}
+{"framework": "livekit-ref", "round": 2, "utt": 1, "latency_ms": 1663.5}
+{"framework": "livekit-ref", "round": 2, "utt": 2, "latency_ms": 1453.5}
+{"framework": "livekit-ref", "round": 2, "utt": 3, "latency_ms": 1613.2}
+{"framework": "livekit-ref", "round": 2, "utt": 4, "latency_ms": 1464.1}
+{"framework": "livekit-ref", "round": 2, "utt": 5, "latency_ms": 1344.1}
+{"framework": "livekit-ref", "round": 2, "utt": 6, "latency_ms": 1793.2}
+{"framework": "livekit-ref", "round": 2, "utt": 7, "latency_ms": 1823.4}
+{"framework":"aai-u36","round":2,"utt":0,"latency_ms":1896.9}
+{"framework":"aai-u36","round":2,"utt":1,"latency_ms":1565.1}
+{"framework":"aai-u36","round":2,"utt":2,"latency_ms":1635}
+{"framework":"aai-u36","round":2,"utt":3,"latency_ms":1688}
+{"framework":"aai-u36","round":2,"utt":4,"latency_ms":1707.1}
+{"framework":"aai-u36","round":2,"utt":5,"latency_ms":1796.3}
+{"framework":"aai-u36","round":2,"utt":6,"latency_ms":1733.6}
+{"framework":"aai-u36","round":2,"utt":7,"latency_ms":1952.9}
+{"framework":"aai-bal","round":2,"utt":0,"latency_ms":1318.8}
+{"framework":"aai-bal","round":2,"utt":1,"latency_ms":1109.1}
+{"framework":"aai-bal","round":2,"utt":2,"latency_ms":1150.8}
+{"framework":"aai-bal","round":2,"utt":3,"latency_ms":1054.6}
+{"framework":"aai-bal","round":2,"utt":4,"latency_ms":1172.8}
+{"framework":"aai-bal","round":2,"utt":5,"latency_ms":1444.1}
+{"framework":"aai-bal","round":2,"utt":6,"latency_ms":1186.2}
+{"framework":"aai-bal","round":2,"utt":7,"latency_ms":1070}
+{"framework": "livekit-ref700", "round": 2, "utt": 0, "latency_ms": 2201.8}
+{"framework": "livekit-ref700", "round": 2, "utt": 1, "latency_ms": 2432.6}
+{"framework": "livekit-ref700", "round": 2, "utt": 2, "latency_ms": 2113.1}
+{"framework": "livekit-ref700", "round": 2, "utt": 3, "latency_ms": 2101.5}
+{"framework": "livekit-ref700", "round": 2, "utt": 4, "latency_ms": 2331.6}
+{"framework": "livekit-ref700", "round": 2, "utt": 5, "latency_ms": 1893.3}
+{"framework": "livekit-ref700", "round": 2, "utt": 6, "latency_ms": 2302.8}
+{"framework": "livekit-ref700", "round": 2, "utt": 7, "latency_ms": 2362.2}
+{"framework": "livekit-ref", "round": 3, "utt": 0, "latency_ms": 1368.8}
+{"framework": "livekit-ref", "round": 3, "utt": 1, "latency_ms": 1380.3}
+{"framework": "livekit-ref", "round": 3, "utt": 2, "latency_ms": 1418.9}
+{"framework": "livekit-ref", "round": 3, "utt": 3, "latency_ms": 1635.7}
+{"framework": "livekit-ref", "round": 3, "utt": 4, "latency_ms": 1659.3}
+{"framework": "livekit-ref", "round": 3, "utt": 5, "latency_ms": 1770.5}
+{"framework": "livekit-ref", "round": 3, "utt": 6, "latency_ms": 1441.2}
+{"framework": "livekit-ref", "round": 3, "utt": 7, "latency_ms": 1446.4}
+{"framework":"aai-u36","round":3,"utt":0,"latency_ms":1894}
+{"framework":"aai-u36","round":3,"utt":1,"latency_ms":1622.7}
+{"framework":"aai-u36","round":3,"utt":2,"latency_ms":1535.5}
+{"framework":"aai-u36","round":3,"utt":3,"latency_ms":1837.1}
+{"framework":"aai-u36","round":3,"utt":4,"latency_ms":1764.6}
+{"framework":"aai-u36","round":3,"utt":5,"latency_ms":1898.3}
+{"framework":"aai-u36","round":3,"utt":6,"latency_ms":1825.5}
+{"framework":"aai-u36","round":3,"utt":7,"latency_ms":1825.5}
+{"framework":"aai-bal","round":3,"utt":0,"latency_ms":1044.4}
+{"framework":"aai-bal","round":3,"utt":1,"latency_ms":938.5}
+{"framework":"aai-bal","round":3,"utt":2,"latency_ms":10234.7}
+{"framework":"aai-bal","round":3,"utt":3,"latency_ms":1309.3}
+{"framework":"aai-bal","round":3,"utt":4,"latency_ms":977}
+{"framework":"aai-bal","round":3,"utt":5,"latency_ms":1308.4}
+{"framework":"aai-bal","round":3,"utt":6,"latency_ms":1022.6}
+{"framework":"aai-bal","round":3,"utt":7,"latency_ms":1257.8}
+{"framework": "livekit-ref700", "round": 3, "utt": 0, "latency_ms": 2331.2}
+{"framework": "livekit-ref700", "round": 3, "utt": 1, "latency_ms": 2183.2}
+{"framework": "livekit-ref700", "round": 3, "utt": 2, "latency_ms": 2012.6}
+{"framework": "livekit-ref700", "round": 3, "utt": 3, "latency_ms": 2101.5}
+{"framework": "livekit-ref700", "round": 3, "utt": 4, "latency_ms": 2332.0}
+{"framework": "livekit-ref700", "round": 3, "utt": 5, "latency_ms": 2022.4}
+{"framework": "livekit-ref700", "round": 3, "utt": 6, "latency_ms": 2133.2}
+{"framework": "livekit-ref700", "round": 3, "utt": 7, "latency_ms": 2262.2}
+{"framework": "livekit-ref", "round": 4, "utt": 0, "latency_ms": 1454.7}
+{"framework": "livekit-ref", "round": 4, "utt": 1, "latency_ms": 1514.5}
+{"framework": "livekit-ref", "round": 4, "utt": 2, "latency_ms": 1364.4}
+{"framework": "livekit-ref", "round": 4, "utt": 3, "latency_ms": 1424.0}
+{"framework": "livekit-ref", "round": 4, "utt": 4, "latency_ms": 1395.1}
+{"framework": "livekit-ref", "round": 4, "utt": 5, "latency_ms": 1395.8}
+{"framework": "livekit-ref", "round": 4, "utt": 6, "latency_ms": 2675.5}
+{"framework": "livekit-ref", "round": 4, "utt": 7, "latency_ms": 1394.4}
+{"framework":"aai-u36","round":4,"utt":0,"latency_ms":2114.8}
+{"framework":"aai-u36","round":4,"utt":1,"latency_ms":1623.2}
+{"framework":"aai-u36","round":4,"utt":2,"latency_ms":1701}
+{"framework":"aai-u36","round":4,"utt":3,"latency_ms":1665.3}
+{"framework":"aai-u36","round":4,"utt":4,"latency_ms":1897.8}
+{"framework":"aai-u36","round":4,"utt":5,"latency_ms":2099.2}
+{"framework":"aai-u36","round":4,"utt":6,"latency_ms":1876.1}
+{"framework":"aai-u36","round":4,"utt":7,"latency_ms":2006.6}
+{"framework":"aai-bal","round":4,"utt":0,"latency_ms":1300.6}
+{"framework":"aai-bal","round":4,"utt":1,"latency_ms":1355.6}
+{"framework":"aai-bal","round":4,"utt":2,"latency_ms":1059.8}
+{"framework":"aai-bal","round":4,"utt":3,"latency_ms":null}
+{"framework":"aai-bal","round":4,"utt":4,"latency_ms":17100}
+{"framework":"aai-bal","round":4,"utt":5,"latency_ms":1429.8}
+{"framework":"aai-bal","round":4,"utt":6,"latency_ms":1185.3}
+{"framework":"aai-bal","round":4,"utt":7,"latency_ms":5231.9}
+{"framework": "livekit-ref700", "round": 4, "utt": 0, "latency_ms": 2264.0}
+{"framework": "livekit-ref700", "round": 4, "utt": 1, "latency_ms": 2284.0}
+{"framework": "livekit-ref700", "round": 4, "utt": 2, "latency_ms": 2024.5}
+{"framework": "livekit-ref700", "round": 4, "utt": 3, "latency_ms": 2004.3}
+{"framework": "livekit-ref700", "round": 4, "utt": 4, "latency_ms": 2155.1}
+{"framework": "livekit-ref700", "round": 4, "utt": 5, "latency_ms": 2194.8}
+{"framework": "livekit-ref700", "round": 4, "utt": 6, "latency_ms": 3153.9}
+{"framework": "livekit-ref700", "round": 4, "utt": 7, "latency_ms": 2364.6}

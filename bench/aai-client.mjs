@@ -1,13 +1,13 @@
 // aai side of the latency benchmark: streams each guest utterance in real time like a
 // microphone (then keeps streaming silence) into the local `aai dev` agent, and times
 // end-of-speech -> first agent audio.
-//   node bench/aai-client.mjs <round> [ws://localhost:3101/websocket]  -> appends to bench/results.jsonl
+//   node bench/aai-client.mjs <round> [ws://localhost:3101/websocket] [label]  -> appends to bench/results.jsonl
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const [rnd = "1", url = "ws://localhost:3101/websocket"] = process.argv.slice(2);
+const [rnd = "1", url = "ws://localhost:3101/websocket", label = "aai"] = process.argv.slice(2);
 const meta = JSON.parse(fs.readFileSync(path.join(here, "utterances/utterances.json"), "utf8"));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const now = () => performance.now();
@@ -69,7 +69,7 @@ for (const [i, u] of meta.entries()) {
   // let the reply finish playing (it arrives ahead of real time), then a short pause
   await sleep(Math.max(1500, (audioBytes / 2 / ttsRate) * 1000 + 1500));
   await sleep(Math.max(0, (audioBytes / 2 / ttsRate) * 1000 - 1000));
-  const row = { framework: "aai", round: Number(rnd), utt: i, latency_ms: latency === null ? null : Math.round(latency * 10) / 10 };
+  const row = { framework: label, round: Number(rnd), utt: i, latency_ms: latency === null ? null : Math.round(latency * 10) / 10 };
   console.log(row);
   fs.appendFileSync(path.join(here, "results.jsonl"), JSON.stringify(row) + "\n");
   await sleep(1000);
