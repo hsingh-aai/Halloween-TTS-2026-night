@@ -14,7 +14,7 @@ const CRYPT_VOICE_ID = process.env.CRYPT_VOICE_ID ?? "01a15fa1-0214-7617-ac85-61
 export default agent({
   name: "The Crypt Keeper",
   description: "The Crypt Keeper, Keeper of the Eternal Vault: trustworthy voice, live redaction (Text-to-Screech)",
-  greeting: "Welcome… to the Eternal Vault. Come in, don't be afraid. First, I must verify your identity… what was the name of your first haunted pet?",
+  greeting: "Welcome… to the Eternal Vault. Come in, don't be afraid. Let's verify your identity… what was the name of your first haunted pet?",
   tts: assemblyAITts({
     voice: "george",
     host: `tts.us.assemblyai.com/v1/ws?voice_id=${CRYPT_VOICE_ID}&model_id=assemblyai-tts-1&language=english&_`,

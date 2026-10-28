@@ -12,7 +12,7 @@ export default agent({
   name: "Therapista",
   description: "Witch-therapist with a crystal ball, Text-to-Screech Halloween happy hour",
   // Open with a question so the guest never has to start the reading.
-  greeting: "Ooh, sit, sit, the crystal ball's been waiting for you all night… what's your name?",
+  greeting: "Ooh, sit, sit, the crystal ball's been waiting for you all night… tell me your name, and I'll read your aura.",
   tts: assemblyAITts({
     voice: "vera",
     host: `tts.us.assemblyai.com/v1/ws?voice_id=${THERAPISTA_VOICE_ID}&model_id=assemblyai-tts-1&language=english&_`,

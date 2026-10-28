@@ -1,0 +1,32 @@
+[
+  {
+    "file": "00.pcm",
+    "text": "Hi Jack, I'm Harnoor.",
+    "seconds": 1.78
+  },
+  {
+    "file": "01.pcm",
+    "text": "I'm a solutions engineer.",
+    "seconds": 1.43
+  },
+  {
+    "file": "02.pcm",
+    "text": "Roast my coffee order. It's an oat milk latte.",
+    "seconds": 2.73
+  },
+  {
+    "file": "03.pcm",
+    "text": "I bet you can't make me laugh.",
+    "seconds": 1.68
+  },
+  {
+    "file": "04.pcm",
+    "text": "I'm dressing up as a vampire.",
+    "seconds": 1.79
+  },
+  {
+    "file": "05.pcm",
+    "text": "Tell me your oldest joke. Like, 1725 old.",
+    "seconds": 3.14
+  }
+]

@@ -1,14 +1,15 @@
 // aai side of the latency benchmark: streams each guest utterance in real time like a
 // microphone (then keeps streaming silence) into the local `aai dev` agent, and times
 // end-of-speech -> first agent audio.
-//   node bench/aai-client.mjs <round> [ws://localhost:3101/websocket] [label]  -> appends to bench/results.jsonl
+//   node bench/aai-client.mjs <round> [ws://localhost:3101/websocket] [label] [set]  -> appends to bench/results.jsonl
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const [rnd = "1", url = "ws://localhost:3101/websocket", label = "aai"] = process.argv.slice(2);
-const meta = JSON.parse(fs.readFileSync(path.join(here, "utterances/utterances.json"), "utf8"));
+const [rnd = "1", url = "ws://localhost:3101/websocket", label = "aai", set] = process.argv.slice(2);
+const UTT = path.join(here, set ? `utterances-${set}` : "utterances");
+const meta = JSON.parse(fs.readFileSync(path.join(UTT, "utterances.json"), "utf8"));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const now = () => performance.now();
 
@@ -25,11 +26,15 @@ function to16k(pcm24) {
 const ws = new WebSocket(`${url}?client=bench-${rnd}-${Date.now()}`);
 ws.binaryType = "arraybuffer";
 let micRate = 16000, ttsRate = 24000;
-let firstAudioAt = null, audioBytes = 0, waitingSince = null;
+let firstAudioAt = null, audioBytes = 0, waitingSince = null, playsUntil = 0, lastAudioAt = 0;
 ws.addEventListener("message", (ev) => {
   if (typeof ev.data !== "string") {
-    if (waitingSince !== null && firstAudioAt === null) firstAudioAt = now();
+    const t = now();
+    if (waitingSince !== null && firstAudioAt === null) firstAudioAt = t;
     if (firstAudioAt !== null) audioBytes += ev.data.byteLength;
+    // where a speaker playing it in real time would finish: replies stream in faster than that
+    playsUntil = Math.max(playsUntil, t) + (ev.data.byteLength / 2 / ttsRate) * 1000;
+    lastAudioAt = t;
     return;
   }
   const m = JSON.parse(ev.data);
@@ -52,8 +57,11 @@ const mic = setInterval(() => {
 }, 20);
 
 await sleep(3000);
+// Speak only once the last reply (and any second part after a tool call) has finished playing.
+const quiet = async () => { while (now() < Math.max(playsUntil + 1000, lastAudioAt + 2500)) await sleep(50); };
 for (const [i, u] of meta.entries()) {
-  const pcm = to16k(fs.readFileSync(path.join(here, "utterances", u.file)));
+  await quiet();
+  const pcm = to16k(fs.readFileSync(path.join(UTT, u.file)));
   firstAudioAt = null; audioBytes = 0; waitingSince = null;
   const ended = new Promise((r) => { speechDone = r; });
   for (let o = 0; o < pcm.length; o += frameBytes) {
@@ -66,13 +74,9 @@ for (const [i, u] of meta.entries()) {
   const deadline = tEnd + 20000;
   while (firstAudioAt === null && now() < deadline) await sleep(5);
   const latency = firstAudioAt === null ? null : firstAudioAt - tEnd;
-  // let the reply finish playing (it arrives ahead of real time), then a short pause
-  await sleep(Math.max(1500, (audioBytes / 2 / ttsRate) * 1000 + 1500));
-  await sleep(Math.max(0, (audioBytes / 2 / ttsRate) * 1000 - 1000));
   const row = { framework: label, round: Number(rnd), utt: i, latency_ms: latency === null ? null : Math.round(latency * 10) / 10 };
   console.log(row);
   fs.appendFileSync(path.join(here, "results.jsonl"), JSON.stringify(row) + "\n");
-  await sleep(1000);
 }
 clearInterval(mic);
 ws.close();

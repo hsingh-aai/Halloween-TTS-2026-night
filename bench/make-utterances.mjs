@@ -1,11 +1,24 @@
 // Renders the benchmark's guest questions with AssemblyAI TTS (voice aai-jean) to
 // bench/utterances/NN.pcm (PCM16 mono 24 kHz) + utterances.json.
+//   node bench/make-utterances.mjs [set]   -> a named set (SETS below) goes to bench/utterances-<set>/
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const key = fs.readFileSync(path.join(here, "..", ".env"), "utf8").match(/^ASSEMBLY_AI_KEY=(.+)$/m)[1].trim();
-const LINES = [
+// A guest walking through a station card, in order, so the character's tools run as at the party.
+const SETS = {
+  jack: [
+    "Hi Jack, I'm Harnoor.",
+    "I'm a solutions engineer.",
+    "Roast my coffee order. It's an oat milk latte.",
+    "I bet you can't make me laugh.",
+    "I'm dressing up as a vampire.",
+    "Tell me your oldest joke. Like, 1725 old.",
+  ],
+};
+const set = process.argv[2];
+const LINES = set ? SETS[set] : [
   "What's a good Halloween costume for a software engineer?",
   "Tell me a quick fun fact about pumpkins.",
   "What candy should I hand out this year?",
@@ -27,7 +40,8 @@ async function tts(text) {
     ws.addEventListener("close", () => resolve(Buffer.concat(parts)));
   });
 }
-const out = path.join(here, "utterances");
+const out = path.join(here, set ? `utterances-${set}` : "utterances");
+fs.mkdirSync(out, { recursive: true });
 const meta = [];
 for (const [i, text] of LINES.entries()) {
   let pcm = await tts(text);
