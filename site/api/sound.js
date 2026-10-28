@@ -1,9 +1,9 @@
-// GET /api/sound?n=cackle-1|cackle-2|scary -> audio/mpeg
+// GET /api/sound?n=cackle-1|cackle-2|scary|scream -> audio/mpeg
 // The sound effects already ship inside the characters' studio pages (inlined as data URIs,
 // see characters/*/cackles.ts and sounds.ts); this serves them from there, so the site holds
 // no audio files of its own and always plays what the studio characters use.
 const STUDIO = "https://alexkroman--aai-server-web-server.modal.run";
-const SOUNDS = { "cackle-1": ["therapista", 0], "cackle-2": ["therapista", 1], scary: ["crypt", 0] };
+const SOUNDS = { "cackle-1": ["therapista", 0], "cackle-2": ["therapista", 1], scary: ["crypt", 0], scream: ["jack2", 0] };
 const cache = new Map();
 
 async function soundsOf(character) {

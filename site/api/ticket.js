@@ -1,9 +1,9 @@
-// GET /api/ticket?c=therapista|crypt|jack|jack2|jack3 -> { sessionUrl, sessionToken, name }
+// GET /api/ticket?c=therapista|crypt|jack2 -> { sessionUrl, sessionToken, name }
 // The aai studio hands out a short-lived session ticket at <agent>/client-config, but sends
 // no CORS headers, so a browser on this domain can't read it directly: this function
 // fetches it server-side. No secrets here: client-config is public.
 const STUDIO = "https://alexkroman--aai-server-web-server.modal.run";
-const CHARACTERS = new Set(["therapista", "crypt", "jack", "jack2", "jack3"]);
+const CHARACTERS = new Set(["therapista", "crypt", "jack2"]);
 
 export default async function handler(req, res) {
   const c = String(req.query?.c ?? new URL(req.url, "http://x").searchParams.get("c") ?? "");
