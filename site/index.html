@@ -62,6 +62,12 @@
   .talk:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
   .talk.live { background: transparent; color: var(--fg); border-color: var(--accent-hover); }
   .talk.live:hover { background: var(--accent); color: var(--bg); }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .mute { background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 4px; height: 48px; padding: 0 20px;
+    font: 500 14px var(--mono); letter-spacing: 1.4px; text-transform: uppercase; cursor: pointer; }
+  .mute:hover { border-color: var(--accent-hover); }
+  .mute[aria-pressed="true"] { background: var(--redact); border-color: var(--redact); color: #fff; }
+  .mute[hidden] { display: none; }
   .hint { font-size: 14px; color: var(--muted); }
   .err { color: var(--redact); font-size: 14px; min-height: 1.2em; }
 
@@ -134,7 +140,10 @@
     <p class="bio" id="bio"></p>
     <div class="orb" id="orb"></div>
     <div class="status" id="status">Tap talk to start</div>
-    <button class="talk" id="talk">Talk</button>
+    <div class="controls">
+      <button class="talk" id="talk">Talk</button>
+      <button class="mute" id="mute" aria-pressed="false" hidden>Mute</button>
+    </div>
     <span class="hint">Allow the microphone. Headphones help.</span>
     <span class="redaction">● Live redaction on</span>
     <div class="err" id="err" role="alert"></div>
@@ -250,7 +259,7 @@ function meter() {
     for (const v of data) peak = Math.max(peak, Math.abs(v - 128));
     level = level * 0.7 + Math.min(1, peak / 50) * 0.3;
     $("orb").style.setProperty("--lvl", level.toFixed(3));
-    $("status").textContent = sfxPlaying ? "…" : speaking() ? `${CHARACTERS[current].name} is talking` : session?.ready ? "Listening" : $("status").textContent;
+    $("status").textContent = sfxPlaying ? "…" : muted && !speaking() ? "Muted" : speaking() ? `${CHARACTERS[current].name} is talking` : session?.ready ? "Listening" : $("status").textContent;
     trySfx();
     raf = requestAnimationFrame(tick);
   };
@@ -281,8 +290,13 @@ function trySfx() {
 }
 
 // ---------- the session (aai agent protocol, same as the board uses) ----------
-let session = null;
-function setLive(on) { $("talk").textContent = on ? "End" : CHARACTERS[current].talk; $("talk").classList.toggle("live", on); if (!on) $("status").textContent = "Tap talk to start"; }
+let session = null, muted = false;
+function setMuted(on) { muted = on; $("mute").setAttribute("aria-pressed", on); $("mute").textContent = on ? "Unmute" : "Mute"; }
+function setLive(on) {
+  $("talk").textContent = on ? "End" : CHARACTERS[current].talk; $("talk").classList.toggle("live", on);
+  $("mute").hidden = !on; setMuted(false);
+  if (!on) $("status").textContent = "Tap talk to start";
+}
 
 async function start() {
   const who = current;
@@ -319,7 +333,7 @@ async function start() {
       if (!s.ready || ws.readyState !== 1) return;
       const input = e.data, r = ratio(), out = new Int16Array(Math.floor(input.length / r));
       for (let i = 0; i < out.length; i++) {
-        const v = sfxPlaying ? 0 : input[Math.floor(i * r)];
+        const v = sfxPlaying || muted ? 0 : input[Math.floor(i * r)];
         out[i] = Math.max(-1, Math.min(1, v)) * 0x7fff;
       }
       ws.send(out.buffer);
@@ -390,6 +404,7 @@ function stop() {
 }
 
 $("talk").addEventListener("click", () => (session ? stop() : start()));
+$("mute").addEventListener("click", () => setMuted(!muted));
 addEventListener("pagehide", stop);
 // Old links to the Jack test stations land on Jack.
 const asked = { jack2: "jack", jack3: "jack" }[location.hash.slice(1)] ?? location.hash.slice(1);

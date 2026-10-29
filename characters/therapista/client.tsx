@@ -54,4 +54,4 @@ function Cackle() {
   );
 }
 
-mountClient({ name: "Therapista", sidebar: Cackle });
+mountClient({ sidebar: Cackle });

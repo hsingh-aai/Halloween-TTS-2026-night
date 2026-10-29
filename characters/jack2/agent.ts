@@ -12,7 +12,6 @@ const JACK_VOICE_ID = process.env.JACK2_VOICE_ID ?? "01a17a78-a590-7e42-9811-1d3
 
 export default agent({
   name: "Jack the Roaster",
-  description: "Jack the Roaster, pumpkin-headed stand-up at the Text-to-Screech Halloween happy hour",
   greeting: "Well, well, well, what have we here? I'm Jack the Roaster. Tell me your name, and I'll rhyme it… and make it hurt.",
   tts: assemblyAITts({
     voice: "george",
@@ -27,6 +26,6 @@ export default agent({
   // No generic "I'm checking on this." filler in his cloned voice.
   // If the guest goes quiet, take the turn back in character with the next question
   // (the SDK stops after 3 unanswered nudges).
-  silence: { deadAirCoverMs: 0, nudge: { afterMs: 8000, prompt: "The guest has gone quiet. As Jack, roast the silence in one quick line, then ask them the next specific question from your set. Never repeat a question they already answered. If your last question went unanswered, don't repeat it: ask a different, easier one. If they've stayed silent twice in a row, give your warm send-off instead." } },
+  silence: { deadAirCoverMs: 0, nudge: { afterMs: 8000, prompt: "The guest has gone quiet. As Jack, roast the silence in one quick line, then dare them to ask you one of the questions below, naming one they haven't asked yet. If your last suggestion went unanswered, name a different one. If they've stayed silent twice in a row, give your warm send-off instead." } },
   sessionContext: () => guestBookContext(),
 });

@@ -10,7 +10,6 @@ const THERAPISTA_VOICE_ID = process.env.THERAPISTA_VOICE_ID ?? "01a15b4b-77b1-73
 
 export default agent({
   name: "Therapista",
-  description: "Witch-therapist with a crystal ball, Text-to-Screech Halloween happy hour",
   // Open with a question so the guest never has to start the reading.
   greeting: "Ooh, sit, sit, the crystal ball's been waiting for you all night… tell me your name, and I'll read your aura.",
   tts: assemblyAITts({
@@ -28,7 +27,7 @@ export default agent({
   // If the guest goes quiet, take the turn back in character with the next question
   // (the SDK stops after 3 unanswered nudges). The timer starts when her reply is generated,
   // not when it finishes playing, so anything short fires while the guest is starting to answer.
-  silence: { deadAirCoverMs: 0, nudge: { afterMs: 25000, prompt: "The guest has gone quiet. As Therapista, in one short witchy line, gently tease the silence and ask the next question from your reading. Never repeat a question they already answered. If your last question went unanswered, don't repeat it: ask a different, easier one. If they've stayed silent twice in a row, give your warm send-off instead." } },
+  silence: { deadAirCoverMs: 0, nudge: { afterMs: 25000, prompt: "The guest has gone quiet. As Therapista, in one short witchy line, gently tease the silence and suggest they ask you one of the questions below, naming one they haven't asked yet. If your last suggestion went unanswered, name a different one. If they've stayed silent twice in a row, give your warm send-off instead." } },
   maxSteps: 2,
   sessionContext: () => {
     const today = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", weekday: "long", month: "long", day: "numeric" }).format(new Date());
